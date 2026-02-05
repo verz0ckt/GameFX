@@ -58,10 +58,15 @@ public class Game
         plane = new PlaneObj(new double[]{0,30,0},500);
         objects.add(plane);
         objects.add(new Block(new double[]{200, 0, 0}, 30));
-        //stressInit(objects);
+        //stressInit2(objects);
 
     }
 
+    private void stressInit2(ArrayList<Object> objects){
+        for(int i = 0;i<10000;i++) {
+            objects.add(new Block(new double[]{200, 0,0}, 10));
+        }
+    }
     private void stressInit(ArrayList<Object> objects){
         for(int i = 0;i<100;i++) {
             for(int j = 0;j<10;j++) {
@@ -77,12 +82,7 @@ public class Game
         new Thread(() -> {
             timeNano = System.nanoTime();
             while (!stop){
-                try {
-                    update();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
+                update();
             }
             System.out.println("Stopped");
             System.exit(0);
@@ -97,7 +97,7 @@ public class Game
 
     private double deltatime;
     public long timeNano;
-    public void update() throws InterruptedException {
+    public void update() {
         long oldtime = timeNano;
         timeNano = System.nanoTime();
         deltatime = (timeNano - oldtime) / 1_000_000_000.0;
@@ -115,13 +115,19 @@ public class Game
         if((rotz != 0) || (rotx != 0) || (roty != 0)){
             getMainPlayer().rotate(rotx,roty,rotz);
         }
-        Thread.sleep(1);
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
     }
     public void stop(){
-        System.out.println("Stopping...");
-        renderer.stopRendering();
-        stop = true;
+        if(!stop) {
+            System.out.println("Stopping...");
+            renderer.stopRendering();
+            stop = true;
+        }
     }
     public void setFullscreen(boolean x){
         stage.setFullScreen(x);

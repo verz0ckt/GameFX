@@ -16,12 +16,12 @@ public class GameKey implements EventHandler<InputEvent> {
         BACKWARDS,
         LEFT,
         RIGHT,
-        FULLSCREEN,
         UP,
         DOWN,
         TLEFT,
         TRIGHT,
         SPAWN,
+        FULLSCREEN,
         OTHER;
     }
     public GameKey(){
