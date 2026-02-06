@@ -1,6 +1,5 @@
 package gamefx;
 
-import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,7 +8,6 @@ import javafx.scene.layout.StackPane;
 
 public class Renderer extends Scene {
     private Canvas canvas;
-    private AnimationTimer clock;
     private double fow = 300;//500
 	private int near = 1;
     private int far = 500;
@@ -32,12 +30,12 @@ public class Renderer extends Scene {
         canvas.heightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(canvas);
-        clock = new AnimationTimer() {
-            @Override
-            public void handle(long l) {
-                repaint();
-            }
-        };
+
+    }
+    private double[] camrot = new double[]{0,0,0};
+
+    public double[] getCamrot() {
+        return camrot;
     }
 
     public int getNear() {
@@ -67,12 +65,17 @@ public class Renderer extends Scene {
         GraphicsContext g = canvas.getGraphicsContext2D();
         g.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         setMid();
+        double[] playerrot = Game.getInstance().getMainPlayer().getRot();
+        camrot[0] = playerrot[0];
+        camrot[1] = playerrot[1];
+        camrot[2] = Game.getInstance().getMainPlayer().pitch;
         Game.getInstance().getMainPlayer().getModel().draw(g);
         for (Object o : Game.getInstance().objects) {
             o.getModel().draw(g);
         }
     }
     public void getRotation(double[] rotation,double[] point) {
+        //TODO: Fix Rotation
         double Z = point[2];
         double Y = point[1];
         double X = point[0];
@@ -133,11 +136,5 @@ public class Renderer extends Scene {
         midY = getHeight()/2;
         Game.getInstance().getRenderer().sizeMultX = 1;
         Game.getInstance().getRenderer().sizeMultY = 1;
-    }
-    public void startRendering(){
-        clock.start();
-    }
-    public void stopRendering(){
-        clock.stop();
     }
 }

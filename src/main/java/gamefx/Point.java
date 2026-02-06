@@ -88,7 +88,7 @@ public class Point {
         vertex[1] = vertex[1] +object.getPos()[1];
         vertex[2] = vertex[2] +object.getPos()[2];
         ren.setRelToCam(vertex);
-        ren.getNegRot(Game.getInstance().getMainPlayer().getRot(),vertex);
+        ren.getNegRot(ren.getCamrot(),vertex);
         campos = vertex;
         if(vertex[0] < ren.getNear()){
             visibility = -1;

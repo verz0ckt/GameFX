@@ -40,10 +40,10 @@ public abstract class Object {
     }
 
     double[] rot;
-    public void rotate(double degX,double degY,double degZ){
-        rot[0] += degX;
-        rot[1] += degY;
-        rot[2] += degZ;
+    public void rotate(double roll,double yaw,double pitch){
+        rot[0] += roll;
+        rot[1] += yaw;
+        rot[2] += pitch;
     }
     public void rotateX(double degree){
         rot[0] += degree;

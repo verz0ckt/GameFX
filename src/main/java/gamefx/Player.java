@@ -14,6 +14,17 @@ public class Player extends Object
     protected ObjectModel createModel() {
         return new PlayerModel();
     }
+    public double pitch = 0;
+
+    @Override
+    public void rotate(double roll,double yaw,double pitch){
+        rot[0] += roll;
+        rot[1] += yaw;
+        this.pitch += pitch;
+    }
+    public void rotateZ(double pitch){
+        this.pitch += pitch;
+    }
 
     public Player(double[] pos, double[] rot)
     {

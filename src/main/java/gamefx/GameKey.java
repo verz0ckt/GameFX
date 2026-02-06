@@ -40,11 +40,19 @@ public class GameKey implements EventHandler<InputEvent> {
         return k.getCode();
     }
 
-    private int triggered = 0;
+    private int pressed = 0;
+    private int released = 0;
 
+    public int getReleased() {
+        return released;
+    }
 
-    public int getTriggered() {
-        return triggered;
+    public int getPressed() {
+        return pressed;
+    }
+
+    public void unset(Inputs input){
+        released &= ~(1 << input.ordinal());
     }
 
     @Override
@@ -53,19 +61,21 @@ public class GameKey implements EventHandler<InputEvent> {
         switch (event.getEventType().getName()){
             case "KEY_PRESSED"->{
                 KeyEvent keyEvent = (KeyEvent) event;
-                triggered |= 1 << KEYBINDS.getOrDefault(getCode(keyEvent.getCode()),Inputs.OTHER).ordinal();
+                pressed |= 1 << KEYBINDS.getOrDefault(getCode(keyEvent.getCode()),Inputs.OTHER).ordinal();
             }
             case "KEY_RELEASED"->{
                 KeyEvent keyEvent = (KeyEvent) event;
-                triggered &= ~(1 << KEYBINDS.getOrDefault(getCode(keyEvent.getCode()),Inputs.OTHER).ordinal());
+                pressed &= ~(1 << KEYBINDS.getOrDefault(getCode(keyEvent.getCode()),Inputs.OTHER).ordinal());
+                released |= 1 << KEYBINDS.getOrDefault(getCode(keyEvent.getCode()),Inputs.OTHER).ordinal();
             }
             case "MOUSE_PRESSED"->{
                 MouseEvent mouseEvent = (MouseEvent) event;
-                triggered |= 1 << KEYBINDS.getOrDefault(getCode(mouseEvent.getButton()),Inputs.OTHER).ordinal();
+                pressed |= 1 << KEYBINDS.getOrDefault(getCode(mouseEvent.getButton()),Inputs.OTHER).ordinal();
             }
             case "MOUSE_RELEASED"->{
                 MouseEvent mouseEvent = (MouseEvent) event;
-                triggered &= ~(1 << KEYBINDS.getOrDefault(getCode(mouseEvent.getButton()),Inputs.OTHER).ordinal());
+                pressed &= ~(1 << KEYBINDS.getOrDefault(getCode(mouseEvent.getButton()),Inputs.OTHER).ordinal());
+                released |= 1 << KEYBINDS.getOrDefault(getCode(mouseEvent.getButton()),Inputs.OTHER).ordinal();
             }
             default -> {
                 event.consume();
