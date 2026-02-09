@@ -27,7 +27,7 @@ public class Game
     public Player getMainPlayer() {
         return mainPlayer;
     }
-    private PlaneObj plane;
+    public PlaneObj plane;
     public ArrayList<Object> objects;
 
 
@@ -66,9 +66,9 @@ public class Game
         mainPlayer = new Player(new double[3]);
         //testobjects
         plane = new PlaneObj(new double[]{0,30,0},500);
-        objects.add(plane);
         objects.add(new Block(new double[]{200, 0, 0}, 30));
-        stressInit2(objects,1000);
+        objects.add(new Block(new double[]{100, 0, 0}, 30));
+        //stressInit2(objects,1000);
 
     }
 
@@ -108,13 +108,13 @@ public class Game
         int released = gameKey.getReleased();
         double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal())&1)-((pressed >>>GameKey.Inputs.BACKWARDS.ordinal())&1))*deltatime*100;
         double y = 0;
-        double z = (((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.LEFT.ordinal())&1))*deltatime*100;
+        double z = (((pressed >>>GameKey.Inputs.LEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1))*deltatime*100;
         if((x != 0) || (y != 0) || (z != 0)){
             getMainPlayer().move(x,y,z);
         }
         double rotz =(((pressed >>> GameKey.Inputs.DOWN.ordinal())&1)-((pressed >>>GameKey.Inputs.UP.ordinal())&1))*deltatime*5;
         double rotx = 0;
-        double roty =(((pressed >>> GameKey.Inputs.TLEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.TRIGHT.ordinal())&1))*deltatime*5;
+        double roty =(((pressed >>> GameKey.Inputs.TRIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.TLEFT.ordinal())&1))*deltatime*5;
         if((rotz != 0) || (rotx != 0) || (roty != 0)){
             getMainPlayer().rotate(rotx,roty,rotz);
         }

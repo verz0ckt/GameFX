@@ -5,6 +5,8 @@ package gamefx;
 import javafx.event.EventHandler;
 import javafx.scene.input.*;
 
+import java.lang.Object;
+import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,14 +27,23 @@ public class GameKey implements EventHandler<InputEvent> {
         OTHER;
     }
     public GameKey(){
+        initKeybinds();
     }
 
-    public final HashMap<Integer, Inputs> KEYBINDS = new HashMap<>(Map.of(getCode(KeyCode.W),Inputs.FORWARD, getCode(KeyCode.S),Inputs.BACKWARDS,
-            getCode(KeyCode.A),Inputs.LEFT,getCode(KeyCode.D),Inputs.RIGHT,getCode(KeyCode.F11),Inputs.FULLSCREEN,
-            getCode(KeyCode.UP),Inputs.UP,getCode(KeyCode.DOWN),Inputs.DOWN,
-            getCode(KeyCode.LEFT),Inputs.TLEFT,getCode(KeyCode.RIGHT),Inputs.TRIGHT,
-            getCode(MouseButton.PRIMARY),Inputs.SPAWN));
+    public final HashMap<Integer, Inputs> KEYBINDS = new HashMap<>();
 
+    private void initKeybinds(){
+        KEYBINDS.put(getCode(KeyCode.W),Inputs.FORWARD);
+        KEYBINDS.put(getCode(KeyCode.S),Inputs.BACKWARDS);
+        KEYBINDS.put(getCode(KeyCode.A),Inputs.LEFT);
+        KEYBINDS.put(getCode(KeyCode.D),Inputs.RIGHT);
+        KEYBINDS.put(getCode(KeyCode.UP),Inputs.UP);
+        KEYBINDS.put(getCode(KeyCode.DOWN),Inputs.DOWN);
+        KEYBINDS.put(getCode(KeyCode.LEFT),Inputs.TLEFT);
+        KEYBINDS.put(getCode(KeyCode.RIGHT),Inputs.TRIGHT);
+        KEYBINDS.put(getCode(KeyCode.F11),Inputs.FULLSCREEN);
+        KEYBINDS.put(getCode(MouseButton.PRIMARY),Inputs.SPAWN);
+    }
     public static int getCode(MouseButton m){
         return m.ordinal()+600;
     }

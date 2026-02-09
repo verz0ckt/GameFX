@@ -5,6 +5,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class Renderer extends Scene {
     private Canvas canvas;
@@ -52,6 +55,12 @@ public class Renderer extends Scene {
         double dz = point[2] - Game.getInstance().getMainPlayer().getPos()[2];
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
+    public double distanceFromViewPortSqared(double[] point) {
+        double dx = point[0] - Game.getInstance().getMainPlayer().getPos()[0];
+        double dy = point[1] - Game.getInstance().getMainPlayer().getPos()[1];
+        double dz = point[2] - Game.getInstance().getMainPlayer().getPos()[2];
+        return dx * dx + dy * dy + dz * dz;
+    }
 
     public void setFow(double fow) {
         this.fow = fow;
@@ -63,16 +72,25 @@ public class Renderer extends Scene {
 
     public void repaint() {
         GraphicsContext g = canvas.getGraphicsContext2D();
+        Game game = Game.getInstance();
         g.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         setMid();
         double[] playerrot = Game.getInstance().getMainPlayer().getRot();
         camrot[0] = playerrot[0];
         camrot[1] = playerrot[1];
-        camrot[2] = Game.getInstance().getMainPlayer().pitch;
-        Game.getInstance().getMainPlayer().getModel().draw(g);
-        for (Object o : Game.getInstance().objects) {
+        camrot[2] = game.getMainPlayer().pitch;
+        game.plane.getModel().draw(g);
+        sortObjects(game.objects);
+        for (Object o : game.objects) {
             o.getModel().draw(g);
         }
+        game.getMainPlayer().getModel().draw(g);
+    }
+    public void sortObjects(ArrayList<Object> objects){
+        for(Object o: objects){
+            o.distance = distanceFromViewPortSqared(o.pos);
+        }
+        objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
     }
     public void getRotation(double[] rotation,double[] point) {
         //TODO: Fix Rotation
@@ -86,7 +104,7 @@ public class Renderer extends Scene {
         double cosZ = Math.cos(rotation[2]);
         double cosY = Math.cos(rotation[1]);
         double cosX = Math.cos(rotation[0]);
-        point[2] = cosY * (sinX * Y + cosX * Z) - sinY * X;
+        point[2] = -cosY * (sinX * Y + cosX * Z) + sinY * X;
         double v = cosY * X + sinY * (sinX * Y + cosX * Z);
         point[1] = sinZ * v + cosZ * (cosX * Y - sinX * Z);
         point[0] = cosZ * v - sinZ * (cosX * Y - sinX * Z);
@@ -102,7 +120,7 @@ public class Renderer extends Scene {
         double cosZ = Math.cos(-rotation[2]);
         double cosY = Math.cos(-rotation[1]);
         double cosX = Math.cos(-rotation[0]);
-        point[2] = cosY * (sinX * Y + cosX * Z) - sinY * X;
+        point[2] = -cosY * (sinX * Y + cosX * Z) + sinY * X;
         double v = cosY * X + sinY * (sinX * Y + cosX * Z);
         point[1] = sinZ * v + cosZ * (cosX * Y - sinX * Z);
         point[0] = cosZ * v - sinZ * (cosX * Y - sinX * Z);

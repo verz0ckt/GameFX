@@ -10,7 +10,9 @@ public abstract class Object {
     public ObjectModel getModel() {
         return model;
     }
-
+    protected double[] pos;
+    protected double[] rot;
+    public double distance;
 
     protected abstract ObjectModel createModel();
 
@@ -33,13 +35,12 @@ public abstract class Object {
         this.pos = pos;
     }
 
-    protected double[] pos;
+
 
     public double[] getRot() {
         return rot;
     }
 
-    double[] rot;
     public void rotate(double roll,double yaw,double pitch){
         rot[0] += roll;
         rot[1] += yaw;

@@ -32,7 +32,7 @@ public class Block extends Object
                             new Point(getObject(),-size, size, size)
                     };
                     boolean planes = true;
-                    boolean lines = false;
+                    boolean lines = true;
                     drawable = new Drawable[(planes?12:0)+(lines?12:0)];  //24
                     if(lines) {
                             drawable[0] = new Line(points[0], points[1]);
