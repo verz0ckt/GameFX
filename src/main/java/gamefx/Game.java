@@ -16,7 +16,7 @@ public class Game
     private AnimationTimer clock;
     private boolean stop = false;
 
-    private static Game Instance = new Game();
+    private static Game Instance;
     public static Game getInstance(){
         if(Instance == null){
         Instance = new Game();
@@ -68,12 +68,12 @@ public class Game
         plane = new PlaneObj(new double[]{0,30,0},500);
         objects.add(plane);
         objects.add(new Block(new double[]{200, 0, 0}, 30));
-        //stressInit2(objects);
+        stressInit2(objects,1000);
 
     }
 
-    private void stressInit2(ArrayList<Object> objects){
-        for(int i = 0;i<10000;i++) {
+    private void stressInit2(ArrayList<Object> objects,int max){
+        for(int i = 0;i<max;i++) {
             objects.add(new Block(new double[]{200, 0,0}, 10));
         }
     }

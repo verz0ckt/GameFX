@@ -85,7 +85,7 @@ public abstract class Object {
         public void draw(GraphicsContext g){
              if(drawable != null && drawable.length > 0) {
                 for(Point p: points){
-                    p.project(renderer.getFow());
+                    p.project(renderer);
                 }
                 for (Drawable d : drawable) {
                     d.draw(g);
