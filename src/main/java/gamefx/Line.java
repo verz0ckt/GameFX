@@ -4,8 +4,6 @@ package gamefx;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import java.util.Arrays;
-
 public class Line extends Drawable
 {
     public Line(Point... corners)
@@ -32,7 +30,7 @@ public class Line extends Drawable
         if(corners[1].visibility()  != 0){
             proj2 = corners[1].getCut(corners[0]);
         }
-        g.setStroke(color);
+        g.setStroke(paint);
         g.strokeLine(proj1[0], proj1[1], proj2[0],proj2[1]);
     }
 

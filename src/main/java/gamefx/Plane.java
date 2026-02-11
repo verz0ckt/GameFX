@@ -14,9 +14,10 @@ public class Plane extends Drawable {
         super("plane",color,corners);
     }
 
+    private final ArrayList<double[]> proj =  new ArrayList<>();
     @Override
     public void draw(GraphicsContext g) {
-        ArrayList<double[]> proj = new ArrayList<>();
+        proj.clear();
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){
                 {
@@ -49,7 +50,10 @@ public class Plane extends Drawable {
             y[i] = proj.get(i)[1];
         }
         if(!proj.isEmpty()) {
-            g.setFill(color);
+            if(g.getFill() != paint){
+                System.out.println("Changed");
+                g.setFill(paint);
+            }
             g.fillPolygon(x, y, proj.size());
         }
     }

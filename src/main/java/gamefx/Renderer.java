@@ -33,6 +33,8 @@ public class Renderer extends Scene {
         canvas.heightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(canvas);
+        System.out.println(canvas.getGraphicsContext2D().isImageSmoothing());
+        canvas.getGraphicsContext2D().setImageSmoothing(false);
 
     }
     private double[] camrot = new double[]{0,0,0};
@@ -85,6 +87,7 @@ public class Renderer extends Scene {
             o.getModel().draw(g);
         }
         game.getMainPlayer().getModel().draw(g);
+        System.out.println("done");
     }
     public void sortObjects(ArrayList<Object> objects){
         for(Object o: objects){

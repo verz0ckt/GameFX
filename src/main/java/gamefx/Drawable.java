@@ -2,7 +2,7 @@ package gamefx;
 
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public abstract class Drawable
 {
@@ -17,11 +17,11 @@ public abstract class Drawable
 
     protected String name;
     protected Renderer ren;
-    protected Color color;
-    public Drawable(String name, Color color, Point[] corners){
+    protected Paint paint;
+    public Drawable(String name, Paint paint, Point[] corners){
        this.corners = corners;
        this.name = name;
-       this.color = color;
+       this.paint = paint;
        ren = Game.getInstance().getRenderer();
     }
     public abstract void draw( GraphicsContext g);
