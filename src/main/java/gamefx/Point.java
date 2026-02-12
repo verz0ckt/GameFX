@@ -84,12 +84,12 @@ public class Point {
         campos[0] = position[0];
         campos[1] = position[1];
         campos[2] = position[2];
-        ren.getRotation(object.getRot(), campos);
+        object.rot.apply(campos);
         campos[0] = campos[0] +object.getPos()[0];
         campos[1] = campos[1] +object.getPos()[1];
         campos[2] = campos[2] +object.getPos()[2];
         ren.setRelToCam(campos);
-        ren.getNegRot(ren.getCamrot(),campos);
+        ren.getCamrot().apply(campos);
         if(campos[0] < ren.getNear()){
             visibility = -1;
             return;

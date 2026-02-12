@@ -108,33 +108,23 @@ public class Game
         int released = gameKey.getReleased();
         double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal())&1)-((pressed >>>GameKey.Inputs.BACKWARDS.ordinal())&1))*deltatime*100;
         double y = 0;
-        double z = (((pressed >>>GameKey.Inputs.LEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1))*deltatime*100;
+        double z = (((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.LEFT.ordinal())&1))*deltatime*100;
         if((x != 0) || (y != 0) || (z != 0)){
             getMainPlayer().move(x,y,z);
         }
-        double rotz =(((pressed >>> GameKey.Inputs.DOWN.ordinal())&1)-((pressed >>>GameKey.Inputs.UP.ordinal())&1))*deltatime*5;
+        double rotz =(((pressed >>> GameKey.Inputs.DOWN.ordinal())&1)-((pressed >>>GameKey.Inputs.UP.ordinal())&1));
         double rotx = 0;
-        double roty =(((pressed >>> GameKey.Inputs.TRIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.TLEFT.ordinal())&1))*deltatime*5;
+        double roty =(((pressed >>> GameKey.Inputs.TLEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.TRIGHT.ordinal())&1));
         if((rotz != 0) || (rotx != 0) || (roty != 0)){
-            getMainPlayer().rotate(rotx,roty,rotz);
+            getMainPlayer().rotateAngle(deltatime*5,rotx,roty,rotz);
         }
         if((released&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
             toggleFullscreen();
             gameKey.unset(GameKey.Inputs.FULLSCREEN);
         }
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
-            double[] pos = new double[]{200,0,0};
-            renderer.getNegRot(mainPlayer.getRot(), pos);
-            Block b = new Block(pos,getMainPlayer().getRot().clone(),30);
-            objects.add(b);
+            //TODO: Spawn Block in front of the Player copying player rotation
             gameKey.unset(GameKey.Inputs.SPAWN);
-        }
-
-
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
 
     }

@@ -1,13 +1,16 @@
 package gamefx;
 
+
 public class Matrix {
     private double[][] matrix;
-    public Matrix(int height,int width){
+    private Matrix(int height, int width){
         matrix = new double[height][width];
     }
     public Matrix(double[][] values){
         this.matrix = values;
     }
+
+
     public double[] apply(double[] vec){
         if(vec.length != matrix[0].length)
             throw new IllegalArgumentException();

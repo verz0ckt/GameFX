@@ -9,7 +9,7 @@ public class PlaneObj extends Object{
         return new PlaneObj.PlaneModel();
     }
 
-        public PlaneObj(double[] pos, double[] rot,int size)
+        public PlaneObj(double[] pos, Quaternion rot,int size)
         {
             super(pos,rot,size);
 

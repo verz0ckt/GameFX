@@ -11,7 +11,7 @@ public abstract class Object {
         return model;
     }
     protected double[] pos;
-    protected double[] rot;
+    protected Quaternion rot;
     public double distance;
 
     protected abstract ObjectModel createModel();
@@ -37,28 +37,21 @@ public abstract class Object {
 
 
 
-    public double[] getRot() {
+    public Quaternion getRot() {
         return rot;
     }
 
-    public void rotate(double roll,double yaw,double pitch){
-        rot[0] += roll;
-        rot[1] += yaw;
-        rot[2] += pitch;
+    public void rotateAngle(double amount,double x,double y, double z){
+        rot.multiply(Quaternion.fromAngle(x,y,z,amount));
+        rot.tryNormalize();
     }
-    public void rotateX(double degree){
-        rot[0] += degree;
-    }
-    public void rotateY(double degree){
-        rot[1] += degree;
-    }
-    public void rotateZ(double degree){
-        rot[2] += degree;
+    public void rotate(double x,double y,double z){
+        //TODO
     }
 
     public int size;
 
-    public Object(double[] pos,double[] rot,int size) {
+    public Object(double[] pos,Quaternion rot,int size) {
         this.pos = pos;
         this.rot = rot;
         this.size = size;
@@ -66,7 +59,7 @@ public abstract class Object {
     }
     public Object(double[] pos,int size) {
         this.pos = pos;
-        this.rot = new double[]{0,0,0};
+        this.rot = Quaternion.fromEuler(0,0,0,0);
         this.size = size;
         model = createModel();
     }
@@ -83,13 +76,13 @@ public abstract class Object {
         public Object getObject(){
             return Object.this;
         }
-        public void draw(GraphicsContext g){
+        public void draw(GraphicsContext gc){
              if(drawable != null && drawable.length > 0) {
                 for(Point p: points){
                     p.project(renderer);
                 }
                 for (Drawable d : drawable) {
-                    d.draw(g);
+                    d.draw(gc);
                 }
             }
         }
@@ -97,7 +90,6 @@ public abstract class Object {
 
     public String toString() {
         return "Object{" +
-                "rot=" + Arrays.toString(rot) +
                 ", pos=" + Arrays.toString(pos) +
                 '}';
     }

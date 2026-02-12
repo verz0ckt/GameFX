@@ -24,5 +24,5 @@ public abstract class Drawable
        this.paint = paint;
        ren = Game.getInstance().getRenderer();
     }
-    public abstract void draw( GraphicsContext g);
+    public abstract void draw( GraphicsContext gc);
 }

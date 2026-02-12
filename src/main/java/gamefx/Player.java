@@ -16,17 +16,12 @@ public class Player extends Object
     }
     public double pitch = 0;
 
-    @Override
-    public void rotate(double roll,double yaw,double pitch){
-        rot[0] += roll;
-        rot[1] += yaw;
-        this.pitch += pitch;
-    }
+
     public void rotateZ(double pitch){
         this.pitch += pitch;
     }
 
-    public Player(double[] pos, double[] rot)
+    public Player(double[] pos, Quaternion rot)
     {
         super(pos,rot,1);
 
@@ -37,14 +32,26 @@ public class Player extends Object
 
     }
     public void move(double[] pos){
-        move(pos[0],pos[1],pos[2]);
+        rot.apply(pos);
+        this.pos[0]+= pos[0];
+        this.pos[1]+= pos[1];
+        this.pos[2]+= pos[2];
     }
     public void move(double x,double y,double z){
-        double sinY = Math.sin(getRot()[1]);
-        double cosY = Math.cos(getRot()[1]);
-        this.pos[0] += cosY * x +sinY * z;
-        this.pos[1] += y;
-        this.pos[2] += -sinY * x + cosY * z;
+        //TODO: add extra  func in Quaternion
+        move(new double[]{x,y,z});
+    }
+
+    @Override
+    @Deprecated
+    public void rotateAngle(double amount, double x, double y, double z) {
+        //TODO: add rotate then delete this
+        super.rotateAngle(amount,x,y,0);
+        this.pitch+= z*amount;
+    }
+    @Override
+    public void rotate(double x, double y, double z){
+
     }
 
     public class PlayerModel extends ObjectModel {
@@ -58,7 +65,6 @@ public class Player extends Object
     public String toString() {
         return "Player{" +
                 "pos=" + Arrays.toString(pos) +
-                ", rot=" + Arrays.toString(rot) +
                 '}';
     }
 }

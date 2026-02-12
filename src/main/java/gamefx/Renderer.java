@@ -6,7 +6,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class Renderer extends Scene {
@@ -14,6 +13,7 @@ public class Renderer extends Scene {
     private double fow = 300;//500
 	private int near = 1;
     private int far = 500;
+    private Game game;
 
     public double midX;
     public double midY;
@@ -33,13 +33,13 @@ public class Renderer extends Scene {
         canvas.heightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(canvas);
-        System.out.println(canvas.getGraphicsContext2D().isImageSmoothing());
+        game = Game.getInstance();
         canvas.getGraphicsContext2D().setImageSmoothing(false);
 
     }
-    private double[] camrot = new double[]{0,0,0};
+    private Quaternion camrot = Quaternion.fromEuler(0,0,0,0);
 
-    public double[] getCamrot() {
+    public Quaternion getCamrot() {
         return camrot;
     }
 
@@ -52,15 +52,17 @@ public class Renderer extends Scene {
     }
 
     public double distanceFromViewPort(double[] point) {
-        double dx = point[0] - Game.getInstance().getMainPlayer().getPos()[0];
-        double dy = point[1] - Game.getInstance().getMainPlayer().getPos()[1];
-        double dz = point[2] - Game.getInstance().getMainPlayer().getPos()[2];
+        double[] pos = game.getMainPlayer().getPos();
+        double dx = point[0] - pos[0];
+        double dy = point[1] - pos[1];
+        double dz = point[2] - pos[2];
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
     public double distanceFromViewPortSqared(double[] point) {
-        double dx = point[0] - Game.getInstance().getMainPlayer().getPos()[0];
-        double dy = point[1] - Game.getInstance().getMainPlayer().getPos()[1];
-        double dz = point[2] - Game.getInstance().getMainPlayer().getPos()[2];
+        double[] pos = game.getMainPlayer().getPos();
+        double dx = point[0] - pos[0];
+        double dy = point[1] - pos[1];
+        double dz = point[2] - pos[2];
         return dx * dx + dy * dy + dz * dz;
     }
 
@@ -73,20 +75,22 @@ public class Renderer extends Scene {
     }
 
     public void repaint() {
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        Game game = Game.getInstance();
-        g.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         setMid();
-        double[] playerrot = Game.getInstance().getMainPlayer().getRot();
-        camrot[0] = playerrot[0];
-        camrot[1] = playerrot[1];
-        camrot[2] = game.getMainPlayer().pitch;
-        game.plane.getModel().draw(g);
+        Quaternion playerrot = game.getMainPlayer().getRot();
+        camrot.i = -playerrot.i;
+        camrot.j = -playerrot.j;
+        camrot.k = -playerrot.k;
+        camrot.w = playerrot.w;
+        camrot.multiplyGlobal(Quaternion.fromAngle(0,0,-1,game.getMainPlayer().pitch));
+        camrot.tryNormalize();
+        game.plane.getModel().draw(gc);
         sortObjects(game.objects);
         for (Object o : game.objects) {
-            o.getModel().draw(g);
+            o.getModel().draw(gc);
         }
-        game.getMainPlayer().getModel().draw(g);
+        game.getMainPlayer().getModel().draw(gc);
         System.out.println("done");
     }
     public void sortObjects(ArrayList<Object> objects){
@@ -94,39 +98,6 @@ public class Renderer extends Scene {
             o.distance = distanceFromViewPortSqared(o.pos);
         }
         objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
-    }
-    public void getRotation(double[] rotation,double[] point) {
-        //TODO: Fix Rotation
-        double Z = point[2];
-        double Y = point[1];
-        double X = point[0];
-        double sinZ = Math.sin(rotation[2]);
-        double sinY = Math.sin(rotation[1]);
-        double sinX = Math.sin(rotation[0]);
-
-        double cosZ = Math.cos(rotation[2]);
-        double cosY = Math.cos(rotation[1]);
-        double cosX = Math.cos(rotation[0]);
-        point[2] = -cosY * (sinX * Y + cosX * Z) + sinY * X;
-        double v = cosY * X + sinY * (sinX * Y + cosX * Z);
-        point[1] = sinZ * v + cosZ * (cosX * Y - sinX * Z);
-        point[0] = cosZ * v - sinZ * (cosX * Y - sinX * Z);
-    }
-    public void getNegRot(double[] rotation,double[] point) {
-        double Z = point[2];
-        double Y = point[1];
-        double X = point[0];
-        double sinZ = Math.sin(-rotation[2]);
-        double sinY = Math.sin(-rotation[1]);
-        double sinX = Math.sin(-rotation[0]);
-
-        double cosZ = Math.cos(-rotation[2]);
-        double cosY = Math.cos(-rotation[1]);
-        double cosX = Math.cos(-rotation[0]);
-        point[2] = -cosY * (sinX * Y + cosX * Z) + sinY * X;
-        double v = cosY * X + sinY * (sinX * Y + cosX * Z);
-        point[1] = sinZ * v + cosZ * (cosX * Y - sinX * Z);
-        point[0] = cosZ * v - sinZ * (cosX * Y - sinX * Z);
     }
     public void setRelToCam(double[] point){
         point[0] = point[0] - Game.getInstance().getMainPlayer().getPos()[0];

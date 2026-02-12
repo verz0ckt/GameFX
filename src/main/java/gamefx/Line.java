@@ -17,7 +17,7 @@ public class Line extends Drawable
     }
 
     @Override
-    public void draw(GraphicsContext g) {
+    public void draw(GraphicsContext gc) {
         double[] proj1 = corners[0].getProjection();
         double[] proj2 = corners[1].getProjection();
 
@@ -30,8 +30,8 @@ public class Line extends Drawable
         if(corners[1].visibility()  != 0){
             proj2 = corners[1].getCut(corners[0]);
         }
-        g.setStroke(paint);
-        g.strokeLine(proj1[0], proj1[1], proj2[0],proj2[1]);
+        gc.setStroke(paint);
+        gc.strokeLine(proj1[0], proj1[1], proj2[0],proj2[1]);
     }
 
 }
