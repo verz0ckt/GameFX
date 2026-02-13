@@ -84,12 +84,10 @@ public class Point {
         campos[0] = position[0];
         campos[1] = position[1];
         campos[2] = position[2];
-        object.rot.apply(campos);
-        campos[0] = campos[0] +object.getPos()[0];
-        campos[1] = campos[1] +object.getPos()[1];
-        campos[2] = campos[2] +object.getPos()[2];
-        ren.setRelToCam(campos);
-        ren.getCamrot().apply(campos);
+        object.globalRot.apply(campos);
+        campos[0]+=  object.offset[0];
+        campos[1]+=  object.offset[1];
+        campos[2]+=  object.offset[2];
         if(campos[0] < ren.getNear()){
             visibility = -1;
             return;
@@ -98,16 +96,16 @@ public class Point {
             return;
         }
         visibility = 0;
-        projection = ren.getProjection(campos, ren.getFow());
+        ren.getProjection(projection,campos, ren.getFow());
         ren.adjustToScreen(projection);
     }
 
     public double[] getCut(Point other) {
-        double[] alt;
+        double[] alt = new double[2];
         if(this.visibility() == -1){
-            alt = ren.getProjection(ren.getCutLine(this, other,ren.getNear()), ren.getFow());
+            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFow());
         }else{
-            alt = ren.getProjection(ren.getCutLine(other,this,ren.getFar()), ren.getFow());
+            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFow());
         }
         ren.adjustToScreen(alt);
         return alt;

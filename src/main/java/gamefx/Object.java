@@ -12,6 +12,10 @@ public abstract class Object {
     }
     protected double[] pos;
     protected Quaternion rot;
+    //only use in rendering;
+    protected Quaternion globalRot;
+    protected double[] offset;
+    //dont use
     public double distance;
 
     protected abstract ObjectModel createModel();
@@ -55,12 +59,17 @@ public abstract class Object {
         this.pos = pos;
         this.rot = rot;
         this.size = size;
-        model = createModel();
+        init();
     }
     public Object(double[] pos,int size) {
         this.pos = pos;
         this.rot = Quaternion.fromEuler(0,0,0,0);
         this.size = size;
+        init();
+    }
+    public void init(){
+        offset = new double[3];
+        globalRot = Quaternion.fromEuler(0,0,0,0);
         model = createModel();
     }
 
@@ -78,6 +87,16 @@ public abstract class Object {
         }
         public void draw(GraphicsContext gc){
              if(drawable != null && drawable.length > 0) {
+                 globalRot.w = rot.w;
+                 globalRot.i = rot.i;
+                 globalRot.j = rot.j;
+                 globalRot.k = rot.k;
+                 globalRot.multiplyGlobal(renderer.getCamrot());
+                 offset[0] = pos[0];
+                 offset[1] = pos[1];
+                 offset[2] = pos[2];
+                 renderer.setRelToCam(offset);
+                 renderer.getCamrot().apply(offset);
                 for(Point p: points){
                     p.project(renderer);
                 }

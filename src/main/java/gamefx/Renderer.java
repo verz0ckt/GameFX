@@ -100,15 +100,14 @@ public class Renderer extends Scene {
         objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
     }
     public void setRelToCam(double[] point){
-        point[0] = point[0] - Game.getInstance().getMainPlayer().getPos()[0];
-        point[1] = point[1] - Game.getInstance().getMainPlayer().getPos()[1];
-        point[2] = point[2] - Game.getInstance().getMainPlayer().getPos()[2];
+        double[] pos = game.getMainPlayer().getPos();
+        point[0] -= pos[0];
+        point[1] -= pos[1];
+        point[2] -= pos[2];
     }
-    public double[] getProjection(double[] point,double fow){
-        double[] proj = new double[2];
+    public void getProjection(double[] proj,double[] point,double fow){
         proj[0] = fow/point[0]*point[2];
         proj[1] = fow/point[0]*point[1];
-        return proj;
     }
     public void adjustToScreen(double[] v){
         v[0] = v[0]*sizeMultX+midX;
@@ -126,7 +125,7 @@ public class Renderer extends Scene {
     public void setMid() {
         midX = getWidth()/2;
         midY = getHeight()/2;
-        Game.getInstance().getRenderer().sizeMultX = 1;
-        Game.getInstance().getRenderer().sizeMultY = 1;
+        sizeMultX = 1;
+        sizeMultY = 1;
     }
 }
