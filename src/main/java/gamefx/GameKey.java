@@ -68,7 +68,7 @@ public class GameKey implements EventHandler<InputEvent> {
 
     @Override
     public void handle(InputEvent event) {
-        System.out.println(event.getEventType().getName());
+        //System.out.println(event.getEventType().getName());
         switch (event.getEventType().getName()){
             case "KEY_PRESSED"->{
                 KeyEvent keyEvent = (KeyEvent) event;

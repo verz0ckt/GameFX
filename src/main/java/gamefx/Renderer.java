@@ -37,10 +37,15 @@ public class Renderer extends Scene {
         canvas.getGraphicsContext2D().setImageSmoothing(false);
 
     }
+    //projection
     private Quaternion camrot = Quaternion.fromEuler(0,0,0,0);
+    private Matrix camRotationMatrix = new Matrix();
 
     public Quaternion getCamrot() {
         return camrot;
+    }
+    public Matrix getCamRotationMatrix() {
+        return camRotationMatrix;
     }
 
     public int getNear() {
@@ -81,6 +86,7 @@ public class Renderer extends Scene {
         camrot.conjugateOf(game.getMainPlayer().getRot());
         camrot.multiplyGlobal(Quaternion.fromAngle(game.getMainPlayer().pitch,0,0,-1));
         camrot.tryNormalize();
+        camRotationMatrix.fromQuaternion(camrot);
         game.plane.getModel().draw(gc);
         sortObjects(game.objects);
         for (Object o : game.objects) {

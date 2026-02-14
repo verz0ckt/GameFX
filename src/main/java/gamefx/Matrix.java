@@ -39,6 +39,14 @@ public class Matrix {
         out[1]= m10*v0+m11*v1+m12*v2;
         out[2]= m20*v0+m21*v1+m22*v2;
     }
+    public void apply(double[] vec){
+        final double v0 = vec[0];
+        final double v1 = vec[1];
+        final double v2 = vec[2];
+        vec[0]= m00*v0+m01*v1+m02*v2;
+        vec[1]= m10*v0+m11*v1+m12*v2;
+        vec[2]= m20*v0+m21*v1+m22*v2;
+    }
     public void multiply(Matrix m2) {
         double a00 = m00, a01 = m01, a02 = m02;
         double a10 = m10, a11 = m11, a12 = m12;
@@ -69,26 +77,26 @@ public class Matrix {
         final double kw = k*w;
         final double kk = k*k;
 
-        m00 = 1-2*(jj+kk); m01 = 2*(ij-kw); m02 = 2*(ik-jw);
-        m10 = 2*(ij-kw); m11 = 1- 2*(ii+kk); m12 = 2*(jk-iw);
+        m00 = 1-2*(jj+kk); m01 = 2*(ij-kw); m02 = 2*(ik+jw);
+        m10 = 2*(ij+kw); m11 = 1- 2*(ii+kk); m12 = 2*(jk-iw);
         m20 = 2*(ik-jw); m21 = 2*(jk+iw); m22 = 1-2*(ii+jj);
     }
-    public void add(int x){
+    public void add(double x){
         m00 += x;m01 += x;m02 += x;
         m10 += x;m11 += x;m12 += x;
         m20 += x;m21 += x;m22 += x;
     }
-    public void subtract(int x){
+    public void subtract(double x){
         m00 -= x;m01 -= x;m02 -= x;
         m10 -= x;m11 -= x;m12 -= x;
         m20 -= x;m21 -= x;m22 -= x;
     }
-    public void multiply(int x){
+    public void multiply(double x){
         m00 *= x;m01 *= x;m02 *= x;
         m10 *= x;m11 *= x;m12 *= x;
         m20 *= x;m21 *= x;m22 *= x;
     }
-    public void divide(int x){
+    public void divide(double x){
         m00 /= x;m01 /= x;m02 /= x;
         m10 /= x;m11 /= x;m12 /= x;
         m20 /= x;m21 /= x;m22 /= x;

@@ -68,7 +68,7 @@ public class Game
         plane = new PlaneObj(new double[]{0,30,0},500);
         objects.add(new Block(new double[]{200, 0, 0}, 30));
         objects.add(new Block(new double[]{100, 0, 0}, 30));
-        //stressInit2(objects,1000);
+        stressInit2(objects,1000);
 
     }
 

@@ -81,13 +81,8 @@ public class Point {
     }
 
     public void project(Renderer ren){
-        campos[0] = position[0];
-        campos[1] = position[1];
-        campos[2] = position[2];
-        object.globalRot.apply(campos);
-        campos[0]+=  object.offset[0];
-        campos[1]+=  object.offset[1];
-        campos[2]+=  object.offset[2];
+        object.rotMatrix.apply(position,campos);
+        object.applyOffset(campos);
         if(campos[0] < ren.getNear()){
             visibility = -1;
             return;
