@@ -78,12 +78,8 @@ public class Renderer extends Scene {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         setMid();
-        Quaternion playerrot = game.getMainPlayer().getRot();
-        camrot.i = -playerrot.i;
-        camrot.j = -playerrot.j;
-        camrot.k = -playerrot.k;
-        camrot.w = playerrot.w;
-        camrot.multiplyGlobal(Quaternion.fromAngle(0,0,-1,game.getMainPlayer().pitch));
+        camrot.conjugateOf(game.getMainPlayer().getRot());
+        camrot.multiplyGlobal(Quaternion.fromAngle(game.getMainPlayer().pitch,0,0,-1));
         camrot.tryNormalize();
         game.plane.getModel().draw(gc);
         sortObjects(game.objects);
@@ -91,7 +87,6 @@ public class Renderer extends Scene {
             o.getModel().draw(gc);
         }
         game.getMainPlayer().getModel().draw(gc);
-        System.out.println("done");
     }
     public void sortObjects(ArrayList<Object> objects){
         for(Object o: objects){

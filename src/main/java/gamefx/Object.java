@@ -46,7 +46,7 @@ public abstract class Object {
     }
 
     public void rotateAngle(double amount,double x,double y, double z){
-        rot.multiply(Quaternion.fromAngle(x,y,z,amount));
+        rot.multiply(Quaternion.fromAngle(amount,x,y,z));
         rot.tryNormalize();
     }
     public void rotate(double x,double y,double z){
@@ -87,10 +87,7 @@ public abstract class Object {
         }
         public void draw(GraphicsContext gc){
              if(drawable != null && drawable.length > 0) {
-                 globalRot.w = rot.w;
-                 globalRot.i = rot.i;
-                 globalRot.j = rot.j;
-                 globalRot.k = rot.k;
+                 globalRot.replaceWith(rot);
                  globalRot.multiplyGlobal(renderer.getCamrot());
                  offset[0] = pos[0];
                  offset[1] = pos[1];

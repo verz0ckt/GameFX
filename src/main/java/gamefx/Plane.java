@@ -51,7 +51,6 @@ public class Plane extends Drawable {
         }
         if(!proj.isEmpty()) {
             if(g.getFill() != paint){
-                System.out.println("Changed");
                 g.setFill(paint);
             }
             g.fillPolygon(x, y, proj.size());
