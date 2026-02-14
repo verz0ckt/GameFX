@@ -1,5 +1,7 @@
 package gamefx;
 
+import javafx.scene.paint.Color;
+
 public class Block extends Object
 {
 
@@ -32,7 +34,7 @@ public class Block extends Object
                             new Point(getObject(), -size, size, size)
                     };
                     boolean planes = true;
-                    boolean lines = false;
+                    boolean lines = true;
                     drawable = new Drawable[(planes ? 12 : 0) + (lines ? 12 : 0)];  //24
 
                     if (planes) {
@@ -46,8 +48,8 @@ public class Block extends Object
                             drawable[7] = new Plane(points[1], points[2], points[6]);
                             drawable[8] = new Plane(points[2], points[6], points[7]);
                             drawable[9] = new Plane(points[2], points[3], points[7]);
-                            drawable[10] = new Plane(points[3], points[7], points[4]);
-                            drawable[11] = new Plane(points[3], points[0], points[4]);
+                            drawable[10] = new Plane(Color.LIGHTCORAL,points[3], points[7], points[4]);
+                            drawable[11] = new Plane(Color.LIGHTCORAL,points[3], points[0], points[4]);
                     }
                     if (lines) {
                             int offset = lines ? 12 : 0;

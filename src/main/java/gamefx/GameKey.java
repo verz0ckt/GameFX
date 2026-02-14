@@ -24,6 +24,7 @@ public class GameKey implements EventHandler<InputEvent> {
         TRIGHT,
         SPAWN,
         FULLSCREEN,
+        B1,B2,B3,B4,
         OTHER;
     }
     public GameKey(){
@@ -43,6 +44,10 @@ public class GameKey implements EventHandler<InputEvent> {
         KEYBINDS.put(getCode(KeyCode.RIGHT),Inputs.TRIGHT);
         KEYBINDS.put(getCode(KeyCode.F11),Inputs.FULLSCREEN);
         KEYBINDS.put(getCode(MouseButton.PRIMARY),Inputs.SPAWN);
+        KEYBINDS.put(getCode(KeyCode.I),Inputs.B1);
+        KEYBINDS.put(getCode(KeyCode.K),Inputs.B2);
+        KEYBINDS.put(getCode(KeyCode.J),Inputs.B3);
+        KEYBINDS.put(getCode(KeyCode.L),Inputs.B4);
     }
     public static int getCode(MouseButton m){
         return m.ordinal()+600;

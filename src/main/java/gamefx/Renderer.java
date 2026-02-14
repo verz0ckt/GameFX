@@ -9,23 +9,22 @@ import java.util.ArrayList;
 
 
 public class Renderer extends Scene {
-    private Canvas canvas;
-    private double fow = 300;//500
+    private final Canvas canvas;
+    private double fow = 500;//500
 	private int near = 1;
     private int far = 500;
-    private Game game;
+    private final Game game;
 
-    public double midX;
-    public double midY;
-    public double sizeMultX;
-    public double sizeMultY;
+    private double midX;
+    private double midY;
+    private double sizeMultX;
+    private double sizeMultY;
 
     public Canvas getCanvas() {
         return canvas;
     }
 
     public Renderer(StackPane root) {
-
         super(root);
         canvas = new Canvas();
         canvas.widthProperty().bind(
@@ -38,8 +37,8 @@ public class Renderer extends Scene {
 
     }
     //projection
-    private Quaternion camrot = Quaternion.fromEuler(0,0,0,0);
-    private Matrix camRotationMatrix = new Matrix();
+    private final Quaternion camrot = Quaternion.fromEuler(0,0,0,0);
+    private final Matrix camRotationMatrix = new Matrix();
 
     public Quaternion getCamrot() {
         return camrot;

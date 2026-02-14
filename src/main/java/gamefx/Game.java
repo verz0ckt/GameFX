@@ -68,7 +68,7 @@ public class Game
         plane = new PlaneObj(new double[]{0,30,0},500);
         objects.add(new Block(new double[]{200, 0, 0}, 30));
         objects.add(new Block(new double[]{100, 0, 0}, 30));
-        stressInit2(objects,1000);
+        //stressInit2(objects,1000);
 
     }
 
@@ -125,6 +125,14 @@ public class Game
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
             //TODO: Spawn Block in front of the Player copying player rotation
             gameKey.unset(GameKey.Inputs.SPAWN);
+        }
+        double blockUP =(((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1));
+        if(blockUP != 0){
+            objects.get(1).getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,0,blockUP));
+        }
+        double blockSide =(((pressed >>> GameKey.Inputs.B3.ordinal())&1)-((pressed >>>GameKey.Inputs.B4.ordinal())&1));
+        if(blockSide != 0){
+            objects.get(1).getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
         }
 
     }

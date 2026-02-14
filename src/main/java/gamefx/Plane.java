@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Plane extends Drawable {
     public Plane(Point... corners) {
-        super("plane",Color.RED,corners );
+        super("plane",Color.LIGHTSKYBLUE,corners );
     }
 
     public Plane(Color color, Point... corners) {

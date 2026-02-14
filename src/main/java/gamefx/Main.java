@@ -10,7 +10,7 @@ public class Main extends Application {
         g.init(stage);
         stage.setScene(g.getRenderer());
         stage.show();
-        Game.getInstance().start();
+        g.start();
     }
 
     public static void main(String[] args) {
