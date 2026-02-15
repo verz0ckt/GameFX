@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Renderer extends Scene {
     private final Canvas canvas;
-    private double fow = 500;//500
+    private double fov = 500;//500
 	private int near = 1;
     private int far = 500;
     private final Game game;
@@ -37,7 +37,7 @@ public class Renderer extends Scene {
 
     }
     //projection
-    private final Quaternion camrot = Quaternion.fromEuler(0,0,0,0);
+    private final Quaternion camrot = Quaternion.zeroRot();
     private final Matrix camRotationMatrix = new Matrix();
 
     public Quaternion getCamrot() {
@@ -70,12 +70,12 @@ public class Renderer extends Scene {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public void setFow(double fow) {
-        this.fow = fow;
+    public void setFov(double fov) {
+        this.fov = fov;
     }
 
-    public double getFow() {
-        return fow;
+    public double getFov() {
+        return fov;
     }
 
     public void repaint() {

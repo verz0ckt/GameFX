@@ -91,16 +91,16 @@ public class Point {
             return;
         }
         visibility = 0;
-        ren.getProjection(projection,campos, ren.getFow());
+        ren.getProjection(projection,campos, ren.getFov());
         ren.adjustToScreen(projection);
     }
 
     public double[] getCut(Point other) {
         double[] alt = new double[2];
         if(this.visibility() == -1){
-            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFow());
+            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFov());
         }else{
-            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFow());
+            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFov());
         }
         ren.adjustToScreen(alt);
         return alt;

@@ -64,14 +64,14 @@ public abstract class Object {
     }
     public Object(double[] pos,int size) {
         this.pos = pos;
-        this.rot = Quaternion.fromEuler(0,0,0,0);
+        this.rot = Quaternion.zeroRot();
         this.size = size;
         init();
     }
-    public void init(){
+    private void init(){
         offset = new double[3];
         rotMatrix = new Matrix();
-        renderingQuaterion = Quaternion.fromEuler(0,0,0,0);
+        renderingQuaterion = Quaternion.zeroRot();
         model = createModel();
     }
     public void applyOffset(double[] pos){

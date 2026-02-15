@@ -34,6 +34,15 @@ public class Quaternion {
         double sinTheta = Math.sin(theta/2);
         return new Quaternion(Math.cos(theta/2),x*sinTheta,y*sinTheta,z*sinTheta).normalize();
     }
+    public static Quaternion zeroRot(){
+        return new Quaternion(1,0,0,0);
+    }
+    public Quaternion copy(){
+        return new Quaternion(w,i,j,k);
+    }
+    public Quaternion getConjugate(){
+        return new Quaternion(w,-i,-j,-k);
+    }
     public Quaternion normalize(){
         double length = Math.sqrt(w*w+i*i+j*j+k*k);
         w= w/length;

@@ -17,10 +17,11 @@ public class Game
     private boolean stop = false;
 
     private static Game Instance;
-    public static Game getInstance(){
-        if(Instance == null){
+    public static Game create(){
         Instance = new Game();
-        }
+        return Instance;
+    }
+    public static Game getInstance(){
         return Instance;
     }
     private Player mainPlayer;
@@ -46,7 +47,8 @@ public class Game
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.setOnCloseRequest(windowEvent -> {
-            stop();
+            setStop();
+            Main.getInstance().setClose();
             windowEvent.consume();
         });
         clock = new AnimationTimer() {
@@ -55,9 +57,7 @@ public class Game
                 update();
                 renderer.repaint();
                 if(stop){
-                    clock.stop();
-                    System.out.println("Stopped");
-                    System.exit(0);
+                    Game.this.stop();
                 }
             }
         };
@@ -123,24 +123,38 @@ public class Game
             gameKey.unset(GameKey.Inputs.FULLSCREEN);
         }
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
-            //TODO: Spawn Block in front of the Player copying player rotation
+            double[] pos = new double[]{200,0,0};
+            Quaternion q = mainPlayer.getRot().copy();
+            q.multiply(Quaternion.fromEuler(mainPlayer.pitch,0,0,1));
+            q.apply(pos);
+            pos[0] += mainPlayer.pos[0];
+            pos[1] += mainPlayer.pos[1];
+            pos[2] += mainPlayer.pos[2];
+            objects.add(new Block(pos,q,30));
             gameKey.unset(GameKey.Inputs.SPAWN);
         }
         double blockUP =(((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1));
         if(blockUP != 0){
-            objects.get(1).getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,0,blockUP));
+            Quaternion q = mainPlayer.getRot().getConjugate();
+            q.multiplyGlobal(Quaternion.fromEuler(deltatime,0,0,blockUP));
+            q.multiplyGlobal(mainPlayer.getRot());
+            objects.getLast().getRot().multiplyGlobal(q);
         }
         double blockSide =(((pressed >>> GameKey.Inputs.B3.ordinal())&1)-((pressed >>>GameKey.Inputs.B4.ordinal())&1));
         if(blockSide != 0){
-            objects.get(1).getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
+            objects.getLast().getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
         }
 
     }
     public void stop(){
-        if(!stop) {
-            System.out.println("Stopping...");
-            stop = true;
-        }
+        clock.stop();
+        System.out.println("Stopped");
+        Instance = null;
+        stage.setScene(null);
+        Main.getInstance().tryClose();
+    }
+    public void setStop(){
+        stop = true;
     }
     public void setFullscreen(boolean x){
         stage.setFullScreen(x);
