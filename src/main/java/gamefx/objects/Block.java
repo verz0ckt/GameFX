@@ -1,5 +1,10 @@
-package gamefx;
+package gamefx.objects;
 
+import gamefx.util.Quaternion;
+import gamefx.rendering.Drawable;
+import gamefx.rendering.Line;
+import gamefx.rendering.Plane;
+import gamefx.rendering.Point;
 import javafx.scene.paint.Color;
 
 public class Block extends Object
@@ -10,7 +15,7 @@ public class Block extends Object
                 return new BlockModel();
         }
 
-        public Block(double[] pos, Quaternion rot,int size)
+        public Block(double[] pos, Quaternion rot, int size)
         {
                 super(pos,rot,size);
 

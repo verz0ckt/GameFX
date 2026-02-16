@@ -1,6 +1,12 @@
-package gamefx;
+package gamefx.objects;
 
 
+import gamefx.Game;
+import gamefx.util.Matrix;
+import gamefx.util.Quaternion;
+import gamefx.rendering.Drawable;
+import gamefx.rendering.Point;
+import gamefx.rendering.Renderer;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.Arrays;
@@ -40,7 +46,9 @@ public abstract class Object {
         this.pos = pos;
     }
 
-
+    public Matrix getRenderingRotationMatrix() {
+        return rotMatrix;
+    }
 
     public Quaternion getRot() {
         return rot;

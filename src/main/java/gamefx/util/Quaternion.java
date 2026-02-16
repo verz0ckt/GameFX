@@ -1,4 +1,4 @@
-package gamefx;
+package gamefx.util;
 
 public class Quaternion {
     private double w,i,j,k;

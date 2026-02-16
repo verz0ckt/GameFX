@@ -1,5 +1,8 @@
-package gamefx;
+package gamefx.rendering;
 
+
+import gamefx.Game;
+import gamefx.objects.Object;
 
 import java.util.Arrays;
 
@@ -27,7 +30,7 @@ public class Point {
 
     Renderer ren;
 
-    Point(Object object, double x, double y, double z){
+    public Point(Object object, double x, double y, double z){
         this.ren= Game.getInstance().getRenderer();
         this.object = object;
         position[0] = x;
@@ -81,7 +84,7 @@ public class Point {
     }
 
     public void project(Renderer ren){
-        object.rotMatrix.apply(position,campos);
+        object.getRenderingRotationMatrix().apply(position,campos);
         object.applyOffset(campos);
         if(campos[0] < ren.getNear()){
             visibility = -1;

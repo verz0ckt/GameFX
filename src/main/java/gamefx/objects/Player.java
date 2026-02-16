@@ -1,4 +1,6 @@
-package gamefx;
+package gamefx.objects;
+
+import gamefx.util.Quaternion;
 
 import java.util.Arrays;
 

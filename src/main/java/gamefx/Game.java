@@ -1,5 +1,11 @@
 package gamefx;
 
+import gamefx.objects.Block;
+import gamefx.objects.Object;
+import gamefx.objects.PlaneObj;
+import gamefx.objects.Player;
+import gamefx.rendering.Renderer;
+import gamefx.util.Quaternion;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCombination;
@@ -29,7 +35,7 @@ public class Game
         return mainPlayer;
     }
     public PlaneObj plane;
-    public ArrayList<Object> objects;
+    public ArrayList<gamefx.objects.Object> objects;
 
 
     public Stage getStage() {
@@ -72,7 +78,7 @@ public class Game
 
     }
 
-    private void stressInit2(ArrayList<Object> objects,int max){
+    private void stressInit2(ArrayList<gamefx.objects.Object> objects, int max){
         for(int i = 0;i<max;i++) {
             objects.add(new Block(new double[]{200, 0,0}, 10));
         }
@@ -127,9 +133,10 @@ public class Game
             Quaternion q = mainPlayer.getRot().copy();
             q.multiply(Quaternion.fromEuler(mainPlayer.pitch,0,0,1));
             q.apply(pos);
-            pos[0] += mainPlayer.pos[0];
-            pos[1] += mainPlayer.pos[1];
-            pos[2] += mainPlayer.pos[2];
+            double[] playerPos = mainPlayer.getPos();
+            pos[0] += playerPos[0];
+            pos[1] += playerPos[1];
+            pos[2] += playerPos[2];
             objects.add(new Block(pos,q,30));
             gameKey.unset(GameKey.Inputs.SPAWN);
         }

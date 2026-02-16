@@ -27,18 +27,14 @@ public class Main extends Application {
         mainStage.show();
         g.start();
     }
-    public void tryClose(){
-        if(close){
+
+    public void tryClose() {
+        if (close) {
             mainStage.close();
         }
     }
 
-    public void setClose(){
+    public void setClose() {
         close = true;
-    }
-
-    public static void main(String[] args) {
-        launch(args);
-        System.out.println("Done");
     }
 }

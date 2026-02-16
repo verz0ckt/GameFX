@@ -1,6 +1,11 @@
-package gamefx;
+package gamefx.objects;
 
 
+import gamefx.util.Quaternion;
+import gamefx.rendering.Drawable;
+import gamefx.rendering.Line;
+import gamefx.rendering.Plane;
+import gamefx.rendering.Point;
 import javafx.scene.paint.Color;
 
 public class PlaneObj extends Object{
@@ -9,7 +14,7 @@ public class PlaneObj extends Object{
         return new PlaneObj.PlaneModel();
     }
 
-        public PlaneObj(double[] pos, Quaternion rot,int size)
+        public PlaneObj(double[] pos, Quaternion rot, int size)
         {
             super(pos,rot,size);
 

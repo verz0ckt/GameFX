@@ -1,5 +1,9 @@
-package gamefx;
+package gamefx.rendering;
 
+import gamefx.Game;
+import gamefx.util.Matrix;
+import gamefx.objects.Object;
+import gamefx.util.Quaternion;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -95,7 +99,7 @@ public class Renderer extends Scene {
     }
     public void sortObjects(ArrayList<Object> objects){
         for(Object o: objects){
-            o.distance = distanceFromViewPortSqared(o.pos);
+            o.distance = distanceFromViewPortSqared(o.getPos());
         }
         objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
     }
