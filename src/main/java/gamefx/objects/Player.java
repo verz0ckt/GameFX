@@ -1,6 +1,7 @@
 package gamefx.objects;
 
 import gamefx.util.Quaternion;
+import javafx.scene.canvas.GraphicsContext;
 
 import java.util.Arrays;
 
@@ -12,25 +13,25 @@ import java.util.Arrays;
  */
 public class Player extends Object
 {
-    @Override
-    protected ObjectModel createModel() {
-        return new PlayerModel();
-    }
-    public double pitch = 0;
+
+    private boolean mainPlayer;
 
 
-    public void rotateZ(double pitch){
-        this.pitch += pitch;
-    }
-
-    public Player(double[] pos, Quaternion rot)
-    {
-        super(pos,rot,1);
+    public Player(double[] pos, Quaternion rot,boolean mainPlayer) {
+        super(pos,rot,32);
+        this.mainPlayer = mainPlayer;
+        model = new PlayerModel();
 
     }
-    public Player(double[] pos)
-    {
-        super(pos,1);
+    public Player(double[] pos, boolean mainPlayer) {
+        super(pos, 32);
+        this.mainPlayer = mainPlayer;
+        model = new PlayerModel();
+    }
+    public Player(double[] pos) {
+        super(pos,32);
+        mainPlayer = false;
+        model = new PlayerModel();
 
     }
     public void move(double[] pos){
@@ -43,25 +44,38 @@ public class Player extends Object
         //TODO: add extra  func in Quaternion
         move(new double[]{x,y,z});
     }
+    public Block head;
 
-    @Override
-    @Deprecated
-    public void rotateAngle(double amount, double x, double y, double z) {
-        //TODO: add rotate then delete this
-        super.rotateAngle(amount,x,y,0);
-        this.pitch+= z*amount;
-    }
-    @Override
-    public void rotate(double x, double y, double z){
-
-    }
 
     public class PlayerModel extends ObjectModel {
         public PlayerModel(){
           super();
 
+
+          Object[] children = new Object[6];
+          Block legl = new Block(Player.this,new double[]{0,0.75*size,0.125*size},Quaternion.zeroRot(),size, 0.75, 0.25,0.25);
+          legl.getModel().offset(0,-0.325*size, 0);
+          Block legr = new Block(Player.this,new double[]{0,0.75*size,-0.125*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
+          legr.getModel().offset(0,-0.325*size, 0);
+          Block body = new Block(Player.this,new double[]{0, 1.125*size,0},Quaternion.zeroRot(),size,0.75,0.5,0.25);
+          Block arml = new Block(Player.this,new double[]{0, 1.375*size,0.25*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
+          arml.getModel().offset(0,-0.25*size,0.125*size);
+          Block armr = new Block(Player.this,new double[]{0,1.375*size,-0.25*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
+          armr.getModel().offset(0,-0.25*size,-0.125*size);
+          head = new Block(Player.this,new double[]{0,1.5*size,0},Quaternion.zeroRot(),0.5*size);
+          head.getModel().offset(0,0.25*size,0);
+
+
+          children[0] = head;
+          children[1] = legl;
+          children[2] = legr;
+          children[3] = body;
+          children[4] = arml;
+          children[5] = armr;
+          setChildren(children);
         }
     }
+
 
     @Override
     public String toString() {

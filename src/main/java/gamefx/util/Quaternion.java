@@ -26,7 +26,23 @@ public class Quaternion {
         return k;
     }
 
-    public static Quaternion fromEuler(double theta,double x, double y, double z){
+    public void setW(double w) {
+        this.w = w;
+    }
+
+    public void setI(double i) {
+        this.i = i;
+    }
+
+    public void setJ(double j) {
+        this.j = j;
+    }
+
+    public void setK(double k) {
+        this.k = k;
+    }
+
+    public static Quaternion fromEuler(double theta, double x, double y, double z){
         double sinTheta = Math.sin(theta/2);
         return new Quaternion(Math.cos(theta/2),x*sinTheta,y*sinTheta,z*sinTheta);
     }
@@ -137,5 +153,13 @@ public class Quaternion {
         this.j = q2.j;
         this.k = q2.k;
     }
-
+    @Override
+    public String toString() {
+        return "Quaternion{" +
+                "w=" + w +
+                ", i=" + i +
+                ", j=" + j +
+                ", k=" + k +
+                '}';
+    }
 }

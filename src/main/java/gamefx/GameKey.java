@@ -5,10 +5,7 @@ package gamefx;
 import javafx.event.EventHandler;
 import javafx.scene.input.*;
 
-import java.lang.Object;
-import java.security.KeyStore;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class GameKey implements EventHandler<InputEvent> {
@@ -24,6 +21,7 @@ public class GameKey implements EventHandler<InputEvent> {
         TRIGHT,
         SPAWN,
         FULLSCREEN,
+        PERSPECTIVE,
         B1,B2,B3,B4,
         OTHER;
     }
@@ -43,6 +41,7 @@ public class GameKey implements EventHandler<InputEvent> {
         KEYBINDS.put(getCode(KeyCode.LEFT),Inputs.TLEFT);
         KEYBINDS.put(getCode(KeyCode.RIGHT),Inputs.TRIGHT);
         KEYBINDS.put(getCode(KeyCode.F11),Inputs.FULLSCREEN);
+        KEYBINDS.put(getCode(KeyCode.F3),Inputs.PERSPECTIVE);
         KEYBINDS.put(getCode(MouseButton.PRIMARY),Inputs.SPAWN);
         KEYBINDS.put(getCode(KeyCode.I),Inputs.B1);
         KEYBINDS.put(getCode(KeyCode.K),Inputs.B2);

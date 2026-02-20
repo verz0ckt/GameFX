@@ -10,25 +10,23 @@ import javafx.scene.paint.Color;
 
 public class PlaneObj extends Object{
 
-        protected ObjectModel createModel() {
-        return new PlaneObj.PlaneModel();
-    }
 
-        public PlaneObj(double[] pos, Quaternion rot, int size)
+        public PlaneObj(double[] pos, Quaternion rot, double size)
         {
             super(pos,rot,size);
+            model = new PlaneModel();
 
         }
-        public PlaneObj(double[] pos,int size)
+        public PlaneObj(double[] pos,double size)
         {
             super(pos,size);
-
+            model = new PlaneModel();
         }
 
     public class PlaneModel extends ObjectModel {
             public PlaneModel() {
                 super();
-                int imax = (size-10)/5;
+                int imax = ((int)size-10)/5;
                 points = new Point[(imax+1)*4+4];
                 drawable = new Drawable[(imax+1)*2+1];
                 for(int i = 0;i <= imax;i+=1){

@@ -1,7 +1,7 @@
 package gamefx.rendering;
 
 
-import gamefx.Game;
+import gamefx.Main;
 import gamefx.objects.Object;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public class Point {
     Renderer ren;
 
     public Point(Object object, double x, double y, double z){
-        this.ren= Game.getInstance().getRenderer();
+        this.ren= Main.getGame().getRenderer();
         this.object = object;
         position[0] = x;
         position[1] = y;
@@ -85,7 +85,7 @@ public class Point {
 
     public void project(Renderer ren){
         object.getRenderingRotationMatrix().apply(position,campos);
-        object.applyOffset(campos);
+        object.applyOffsetToPoint(campos);
         if(campos[0] < ren.getNear()){
             visibility = -1;
             return;
@@ -94,16 +94,16 @@ public class Point {
             return;
         }
         visibility = 0;
-        ren.getProjection(projection,campos, ren.getFov());
+        ren.getProjection(projection,campos, ren.getFocalLength());
         ren.adjustToScreen(projection);
     }
 
     public double[] getCut(Point other) {
         double[] alt = new double[2];
         if(this.visibility() == -1){
-            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFov());
+            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFocalLength());
         }else{
-            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFov());
+            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFocalLength());
         }
         ren.adjustToScreen(alt);
         return alt;

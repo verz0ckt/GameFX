@@ -1,6 +1,7 @@
 package gamefx.rendering;
 
 import gamefx.Game;
+import gamefx.Main;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
@@ -8,21 +9,24 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Screen;
 
 import java.util.ArrayList;
 
 
 public class Renderer extends Scene {
     private final Canvas canvas;
-    private double fov = 500;//500
-	private int near = 1;
-    private int far = 500;
+    private double focalLength = -850;
+	private double near = 1;
+    private double far = 500;
     private final Game game;
 
     private double midX;
     private double midY;
-    private double sizeMultX;
-    private double sizeMultY;
+    private double maxHeight;
+    private double maxWidth;
+    private double sizeMultHeight;
+    private double sizeMultWidth;
 
     public Canvas getCanvas() {
         return canvas;
@@ -36,86 +40,92 @@ public class Renderer extends Scene {
         canvas.heightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(canvas);
-        game = Game.getInstance();
+        game = Main.getGame();
         canvas.getGraphicsContext2D().setImageSmoothing(false);
-
+        maxHeight = Screen.getPrimary().getBounds().getHeight();
+        maxWidth = Screen.getPrimary().getBounds().getWidth();
     }
     //projection
-    private final Quaternion camrot = Quaternion.zeroRot();
+    private final Quaternion camRot = Quaternion.zeroRot();
+    private final double[] camPos = new double[3];
     private final Matrix camRotationMatrix = new Matrix();
 
-    public Quaternion getCamrot() {
-        return camrot;
+    public Quaternion getCamRot() {
+        return camRot;
     }
     public Matrix getCamRotationMatrix() {
         return camRotationMatrix;
     }
 
-    public int getNear() {
+    public double getNear() {
         return near;
     }
 
-    public int getFar() {
+    public double getFar() {
         return far;
     }
 
-    public double distanceFromViewPort(double[] point) {
-        double[] pos = game.getMainPlayer().getPos();
-        double dx = point[0] - pos[0];
-        double dy = point[1] - pos[1];
-        double dz = point[2] - pos[2];
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
-    public double distanceFromViewPortSqared(double[] point) {
-        double[] pos = game.getMainPlayer().getPos();
-        double dx = point[0] - pos[0];
-        double dy = point[1] - pos[1];
-        double dz = point[2] - pos[2];
-        return dx * dx + dy * dy + dz * dz;
+
+    public void setFocalLength(double focalLength) {
+        this.focalLength = focalLength;
     }
 
-    public void setFov(double fov) {
-        this.fov = fov;
-    }
-
-    public double getFov() {
-        return fov;
+    public double getFocalLength() {
+        return focalLength;
     }
 
     public void repaint() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         setMid();
-        camrot.conjugateOf(game.getMainPlayer().getRot());
-        camrot.multiplyGlobal(Quaternion.fromAngle(game.getMainPlayer().pitch,0,0,-1));
-        camrot.tryNormalize();
-        camRotationMatrix.fromQuaternion(camrot);
+        game.getCam().update();
+        camRot.conjugateOf(game.getCam().getRenderingQuaternion());
+        camRot.tryNormalize();
+        camRotationMatrix.fromQuaternion(camRot);
+        double[] camOffset = game.getCam().getAbsPos();
+        camPos[0] = camOffset[0];
+        camPos[1] = camOffset[1];
+        camPos[2] = camOffset[2];
         game.plane.getModel().draw(gc);
         sortObjects(game.objects);
         for (Object o : game.objects) {
             o.getModel().draw(gc);
         }
-        game.getMainPlayer().getModel().draw(gc);
+        for (int i = 0; i< game.getPlayerNum();i++){
+            game.getOtherPlayers()[i].getModel().draw(gc);
+        }
+        if(game.getCam().getPerspective() >1){
+            game.getMainPlayer().getModel().draw(gc);
+        }
     }
+    @Deprecated
+    public double distanceFromViewPortSqared(double[] point) {
+        double dx = point[0] - camPos[0];
+        double dy = point[1] - camPos[1];
+        double dz = point[2] - camPos[2];
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    @Deprecated
     public void sortObjects(ArrayList<Object> objects){
+        //TODO: sort Planes instead
         for(Object o: objects){
             o.distance = distanceFromViewPortSqared(o.getPos());
         }
         objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
     }
     public void setRelToCam(double[] point){
-        double[] pos = game.getMainPlayer().getPos();
-        point[0] -= pos[0];
-        point[1] -= pos[1];
-        point[2] -= pos[2];
+        point[0] -= camPos[0];
+        point[1] -= camPos[1];
+        point[2] -= camPos[2];
     }
-    public void getProjection(double[] proj,double[] point,double fow){
-        proj[0] = fow/point[0]*point[2];
-        proj[1] = fow/point[0]*point[1];
+    public void getProjection(double[] proj,double[] point,double fov){
+        proj[0] = fov/point[0]*point[2];
+        proj[1] = fov/point[0]*point[1];
     }
     public void adjustToScreen(double[] v){
-        v[0] = v[0]*sizeMultX+midX;
-        v[1] = v[1]*sizeMultY+midY;
+        v[0] = v[0]* sizeMultWidth +midX;
+        v[1] = v[1]* sizeMultHeight +midY;
     }
     public double[] getCutLine(Point p1, Point p2,double cut) {
         double[] cord1 = p1.getCampos();
@@ -129,7 +139,7 @@ public class Renderer extends Scene {
     public void setMid() {
         midX = getWidth()/2;
         midY = getHeight()/2;
-        sizeMultX = 1;
-        sizeMultY = 1;
+        sizeMultHeight = getHeight()/maxHeight;
+        sizeMultWidth = getWidth()/maxWidth;
     }
 }

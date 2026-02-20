@@ -2,6 +2,7 @@ package gamefx.rendering;
 
 
 import gamefx.Game;
+import gamefx.Main;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 
@@ -23,7 +24,7 @@ public abstract class Drawable
        this.corners = corners;
        this.name = name;
        this.paint = paint;
-       ren = Game.getInstance().getRenderer();
+       ren = Main.getGame().getRenderer();
     }
     public abstract void draw( GraphicsContext gc);
 }

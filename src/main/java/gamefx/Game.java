@@ -1,14 +1,11 @@
 package gamefx;
 
-import gamefx.objects.Block;
+import gamefx.objects.*;
 import gamefx.objects.Object;
-import gamefx.objects.PlaneObj;
-import gamefx.objects.Player;
 import gamefx.rendering.Renderer;
 import gamefx.util.Quaternion;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -21,28 +18,22 @@ public class Game
     private GameKey gameKey;
     private AnimationTimer clock;
     private boolean stop = false;
-
-    private static Game Instance;
-    public static Game create(){
-        Instance = new Game();
-        return Instance;
-    }
-    public static Game getInstance(){
-        return Instance;
-    }
     private Player mainPlayer;
+    private Cam cam;
+    private Player[] otherPlayers;
+    private int playerNum = 0;
     public Player getMainPlayer() {
         return mainPlayer;
     }
     public PlaneObj plane;
-    public ArrayList<gamefx.objects.Object> objects;
+    public ArrayList<Object> objects;
 
 
     public Stage getStage() {
         return stage;
     }
 
-    private Game() {
+    public Game() {
        System.out.println("Start");
     }
     public void init(Stage stage){
@@ -50,11 +41,9 @@ public class Game
         renderer = new Renderer(new StackPane());
         //input
         gameKey = new GameKey();
-        stage.setFullScreenExitHint("");
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.setOnCloseRequest(windowEvent -> {
             setStop();
-            Main.getInstance().setClose();
+            Main.setClose();
             windowEvent.consume();
         });
         clock = new AnimationTimer() {
@@ -69,16 +58,45 @@ public class Game
         };
         //objects
         objects = new ArrayList<>();
-        mainPlayer = new Player(new double[3]);
+        otherPlayers = new Player[8];
+        mainPlayer = new Player(new double[3],true);
+        cam = new Cam(mainPlayer.head,new double[]{0,8,0});
         //testobjects
-        plane = new PlaneObj(new double[]{0,30,0},500);
-        objects.add(new Block(new double[]{200, 0, 0}, 30));
-        objects.add(new Block(new double[]{100, 0, 0}, 30));
+        plane = new PlaneObj(new double[]{0,0,0},500);
+        addOtherPlayer(new Player(new double[]{0,0,0}));
+        objects.add(new Block(new double[]{100, 16, 0}, 32));
+        objects.add(new Block(new double[]{200, 32, 0}, 64));
         //stressInit2(objects,1000);
 
     }
-
-    private void stressInit2(ArrayList<gamefx.objects.Object> objects, int max){
+    public boolean addOtherPlayer(Player player){
+        if(playerNum < 8) {
+            otherPlayers[playerNum] = player;
+            playerNum++;
+            return true;
+        }else {
+            return false;
+        }
+    }
+    public Player popOtherPlayer(){
+        playerNum--;
+        Player p = otherPlayers[playerNum];
+        otherPlayers[playerNum] = null;
+        return p;
+    }
+    public Player removeOtherPlayer(int index){
+        if(playerNum <= index){
+            return null;
+        }
+        Player p = otherPlayers[index];
+        playerNum--;
+        while (index < playerNum){
+            otherPlayers[index] = otherPlayers[++index];
+        }
+        otherPlayers[playerNum] = null;
+        return p;
+    }
+    private void stressInit2(ArrayList<Object> objects, int max){
         for(int i = 0;i<max;i++) {
             objects.add(new Block(new double[]{200, 0,0}, 10));
         }
@@ -94,6 +112,19 @@ public class Game
     public Renderer getRenderer() {
         return renderer;
     }
+
+    public Cam getCam() {
+        return cam;
+    }
+
+    public Player[] getOtherPlayers() {
+        return otherPlayers;
+    }
+
+    public int getPlayerNum() {
+        return playerNum;
+    }
+
     public void start(){
         clock.start();
         renderer.addEventHandler(InputEvent.ANY,gameKey);
@@ -112,42 +143,51 @@ public class Game
         //TODO: finish key recognision
         int pressed = gameKey.getPressed();
         int released = gameKey.getReleased();
-        double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal())&1)-((pressed >>>GameKey.Inputs.BACKWARDS.ordinal())&1))*deltatime*100;
+        double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal())&1)-((pressed >>>GameKey.Inputs.BACKWARDS.ordinal())&1))*deltatime*30;
         double y = 0;
-        double z = (((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.LEFT.ordinal())&1))*deltatime*100;
+        double z = (((pressed >>>GameKey.Inputs.LEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.RIGHT.ordinal())&1))*deltatime*30;
         if((x != 0) || (y != 0) || (z != 0)){
             getMainPlayer().move(x,y,z);
         }
-        double rotz =(((pressed >>> GameKey.Inputs.DOWN.ordinal())&1)-((pressed >>>GameKey.Inputs.UP.ordinal())&1));
-        double rotx = 0;
-        double roty =(((pressed >>> GameKey.Inputs.TLEFT.ordinal())&1)-((pressed >>>GameKey.Inputs.TRIGHT.ordinal())&1));
-        if((rotz != 0) || (rotx != 0) || (roty != 0)){
-            getMainPlayer().rotateAngle(deltatime*5,rotx,roty,rotz);
+        int rotz =(((pressed >>> GameKey.Inputs.UP.ordinal())&1)-((pressed >>>GameKey.Inputs.DOWN.ordinal())&1));
+        int roty =(((pressed >>> GameKey.Inputs.TRIGHT.ordinal())&1)-((pressed >>>GameKey.Inputs.TLEFT.ordinal())&1));
+        if(roty != 0){
+            getMainPlayer().rotateAngle(deltatime,0,roty,0);
+        }
+        if(rotz != 0){
+            Quaternion rot = getMainPlayer().head.getRot();
+            rot.multiply(Quaternion.fromAngle(deltatime,0,0,rotz));
+            rot.setW(Math.max(rot.getW(),0.7071067812));
+            rot.setK(Math.max(Math.min(rot.getK(),0.7071067812),-0.7071067812));
         }
         if((released&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
             toggleFullscreen();
             gameKey.unset(GameKey.Inputs.FULLSCREEN);
         }
+        if((released&1<< GameKey.Inputs.PERSPECTIVE.ordinal()) != 0){
+            System.out.println(cam.togglePerspective());
+            gameKey.unset(GameKey.Inputs.PERSPECTIVE);
+        }
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
             double[] pos = new double[]{200,0,0};
             Quaternion q = mainPlayer.getRot().copy();
-            q.multiply(Quaternion.fromEuler(mainPlayer.pitch,0,0,1));
+            q.multiply(cam.getRot());
             q.apply(pos);
-            double[] playerPos = mainPlayer.getPos();
+            double[] playerPos = getCam().getAbsPos();
             pos[0] += playerPos[0];
             pos[1] += playerPos[1];
             pos[2] += playerPos[2];
             objects.add(new Block(pos,q,30));
             gameKey.unset(GameKey.Inputs.SPAWN);
         }
-        double blockUP =(((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1));
+        int blockUP =(((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1));
         if(blockUP != 0){
             Quaternion q = mainPlayer.getRot().getConjugate();
             q.multiplyGlobal(Quaternion.fromEuler(deltatime,0,0,blockUP));
             q.multiplyGlobal(mainPlayer.getRot());
             objects.getLast().getRot().multiplyGlobal(q);
         }
-        double blockSide =(((pressed >>> GameKey.Inputs.B3.ordinal())&1)-((pressed >>>GameKey.Inputs.B4.ordinal())&1));
+        int blockSide =(((pressed >>> GameKey.Inputs.B3.ordinal())&1)-((pressed >>>GameKey.Inputs.B4.ordinal())&1));
         if(blockSide != 0){
             objects.getLast().getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
         }
@@ -156,9 +196,8 @@ public class Game
     public void stop(){
         clock.stop();
         System.out.println("Stopped");
-        Instance = null;
         stage.setScene(null);
-        Main.getInstance().tryClose();
+        Main.tryClose();
     }
     public void setStop(){
         stop = true;

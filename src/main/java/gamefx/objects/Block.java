@@ -7,36 +7,49 @@ import gamefx.rendering.Plane;
 import gamefx.rendering.Point;
 import javafx.scene.paint.Color;
 
-public class Block extends Object
-{
+public class Block extends Object{
 
-        @Override
-        protected ObjectModel createModel() {
-                return new BlockModel();
-        }
+        private double height;
+        private double length;
+        private double width;
 
-        public Block(double[] pos, Quaternion rot, int size)
-        {
+
+        public Block(double[] pos, Quaternion rot, double size) {
                 super(pos,rot,size);
-
+                height = width = length = 1;
+                model = new BlockModel();
         }
-        public Block(double[] pos, int size)
-        {
-                super(pos,size);
+        public Block(Object parent, double[] pos, Quaternion rot, double size) {
+                super(parent, pos, rot, size);
+                height = width = length = 1;
+                model = new BlockModel();
+        }
+        public Block(Object parent, double[] pos, Quaternion rot, double size,double height,double width,double length) {
+                super(parent, pos, rot, size);
+                this.height = height;
+                this.width = width;
+                this.length = length;
+                model = new BlockModel();
+        }
 
+        public Block(double[] pos, int size) {
+                super(pos,size);
+                height = width = length = 1;
+                model = new BlockModel();
         }
     public class BlockModel extends ObjectModel {
             public BlockModel() {
                     super();
+                    double halfSize =  size/2;
                     points = new Point[]{
-                            new Point(getObject(), -size, -size, -size),
-                            new Point(getObject(), size, -size, -size),
-                            new Point(getObject(), size, size, -size),
-                            new Point(getObject(), -size, size, -size),
-                            new Point(getObject(), -size, -size, size),
-                            new Point(getObject(), size, -size, size),
-                            new Point(getObject(), size, size, size),
-                            new Point(getObject(), -size, size, size)
+                            new Point(getObject(), -halfSize*length, -halfSize*height, -halfSize*width),
+                            new Point(getObject(), halfSize*length, -halfSize*height, -halfSize*width),
+                            new Point(getObject(), halfSize*length, halfSize*height, -halfSize*width),
+                            new Point(getObject(), -halfSize*length, halfSize*height, -halfSize*width),
+                            new Point(getObject(), -halfSize*length, -halfSize*height, halfSize*width),
+                            new Point(getObject(), halfSize*length, -halfSize*height, halfSize*width),
+                            new Point(getObject(), halfSize*length, halfSize*height, halfSize*width),
+                            new Point(getObject(), -halfSize*length, halfSize*height, halfSize*width)
                     };
                     boolean planes = true;
                     boolean lines = true;
@@ -72,5 +85,6 @@ public class Block extends Object
                             }
                     }
             }
+
     }
 }

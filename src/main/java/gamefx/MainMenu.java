@@ -18,12 +18,12 @@ public class MainMenu extends Scene {
         root.setPrefSize(1200,600);
         children = root.getChildren();
         Button startButton = new Button("Start");
-        startButton.setOnAction(_ -> Main.getInstance().startGame());
+        startButton.setOnAction(_ -> Main.startGame());
         children.add(startButton);
         Button endButton = new Button("CLOSE");
         endButton.setOnAction(_ -> {
-            Main.getInstance().setClose();
-            Main.getInstance().tryClose();
+            Main.setClose();
+            Main.tryClose();
         });
         children.add(endButton);
     }

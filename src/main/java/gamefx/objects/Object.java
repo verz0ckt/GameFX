@@ -2,6 +2,7 @@ package gamefx.objects;
 
 
 import gamefx.Game;
+import gamefx.Main;
 import gamefx.util.Matrix;
 import gamefx.util.Quaternion;
 import gamefx.rendering.Drawable;
@@ -12,20 +13,62 @@ import javafx.scene.canvas.GraphicsContext;
 import java.util.Arrays;
 
 public abstract class Object {
-    private ObjectModel model;
+    protected ObjectModel model;
+    protected Object parent;
+    private Object[] children;
     public ObjectModel getModel() {
         return model;
     }
     protected double[] pos;
     protected Quaternion rot;
+    public double size;
     //only use in rendering;
-    private Quaternion renderingQuaterion;
+    protected Quaternion renderingQuaterion;
     protected Matrix rotMatrix;
-    private double[] offset;
+    protected double[] offset;
     //dont use
     public double distance;
 
-    protected abstract ObjectModel createModel();
+    public Object(Object parent, double[] pos, double size) {
+        this.parent = parent;
+        this.pos = pos;
+        this.rot = Quaternion.zeroRot();
+        this.size = size;
+        init();
+    }
+    public Object(Object parent, double[] pos, Quaternion rot, double size) {
+        this.parent = parent;
+        this.pos = pos;
+        this.rot = rot;
+        this.size = size;
+        init();
+    }
+    public Object(double[] pos, Quaternion rot, double size) {
+        this.pos = pos;
+        this.rot = rot;
+        this.size = size;
+        init();
+    }
+    public Object(double[] pos,double size) {
+        this.pos = pos;
+        this.rot = Quaternion.zeroRot();
+        this.size = size;
+        init();
+    }
+
+    public Object[] getChildren() {
+        return children;
+    }
+    public void setChildren(Object[] children) {
+        this.children = children;
+    }
+
+    private void init(){
+        offset = new double[3];
+        rotMatrix = new Matrix();
+        renderingQuaterion = Quaternion.zeroRot();
+    }
+
 
     public void addPos(double[] pos) {
         this.pos[0] += pos[0];
@@ -36,6 +79,14 @@ public abstract class Object {
         this.pos[0] += x;
         this.pos[1] += y;
         this.pos[2] += z;
+    }
+
+    public Object getParent() {
+        return parent;
+    }
+
+    public void setParent(Object parent) {
+        this.parent = parent;
     }
 
     public double[] getPos() {
@@ -54,35 +105,16 @@ public abstract class Object {
         return rot;
     }
 
+    @Deprecated
     public void rotateAngle(double amount,double x,double y, double z){
         rot.multiply(Quaternion.fromAngle(amount,x,y,z));
         rot.tryNormalize();
     }
     public void rotate(double x,double y,double z){
-        //TODO
+        //TODO: add rotate then delete this
     }
 
-    public int size;
-
-    public Object(double[] pos,Quaternion rot,int size) {
-        this.pos = pos;
-        this.rot = rot;
-        this.size = size;
-        init();
-    }
-    public Object(double[] pos,int size) {
-        this.pos = pos;
-        this.rot = Quaternion.zeroRot();
-        this.size = size;
-        init();
-    }
-    private void init(){
-        offset = new double[3];
-        rotMatrix = new Matrix();
-        renderingQuaterion = Quaternion.zeroRot();
-        model = createModel();
-    }
-    public void applyOffset(double[] pos){
+    public void applyOffsetToPoint(double[] pos){
         pos[0] += offset[0];
         pos[1] += offset[1];
         pos[2] += offset[2];
@@ -94,29 +126,58 @@ public abstract class Object {
         protected Renderer renderer;
 
         public ObjectModel() {
-            this.renderer = Game.getInstance().getRenderer();
+            this.renderer = Main.getGame().getRenderer();
             
+        }
+        public void offset(double x,double y,double z){
+            for(Point p : points){
+                double[] pos = p.getPosition();
+                pos[0] += x;
+                pos[1] += y;
+                pos[2] += z;
+            }
         }
         public Object getObject(){
             return Object.this;
         }
         public void draw(GraphicsContext gc){
-             if(drawable != null && drawable.length > 0) {
+             if(points != null || children != null) {
                  renderingQuaterion.replaceWith(rot);
-                 renderingQuaterion.multiplyGlobal(renderer.getCamrot());
-                 rotMatrix.fromQuaternion(renderingQuaterion);
-                 offset[0] = pos[0];
-                 offset[1] = pos[1];
-                 offset[2] = pos[2];
-                 renderer.setRelToCam(offset);
-                 renderer.getCamRotationMatrix().apply(offset);
-                for(Point p: points){
-                    p.project(renderer);
-                }
-                for (Drawable d : drawable) {
-                    d.draw(gc);
-                }
-            }
+                 if (parent == null) {
+                     renderingQuaterion.multiplyGlobal(renderer.getCamRot());
+                     rotMatrix.fromQuaternion(renderingQuaterion);
+                     offset[0] = pos[0];
+                     offset[1] = pos[1];
+                     offset[2] = pos[2];
+                     renderer.setRelToCam(offset);
+                     System.out.println(Arrays.toString(offset));
+                     renderer.getCamRotationMatrix().apply(offset);
+
+                 } else {
+                     renderingQuaterion.multiplyGlobal(parent.renderingQuaterion);
+                     rotMatrix.fromQuaternion(renderingQuaterion);
+                     offset[0] = pos[0];
+                     offset[1] = pos[1];
+                     offset[2] = pos[2];
+                     parent.renderingQuaterion.apply(offset);
+                     parent.applyOffsetToPoint(offset);
+                 }
+                 if(points!= null){
+                    for (Point p : points) {
+                         p.project(renderer);
+                    }
+                 }
+                 if(drawable != null){
+                    for (Drawable d : drawable) {
+                       d.draw(gc);
+                    }
+                 }
+                 if (children != null) {
+                     for (Object c : children) {
+                         c.getModel().draw(gc);
+                     }
+                 }
+             }
         }
     }
 
