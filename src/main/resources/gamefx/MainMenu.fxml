@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<!-- made using ChatGPT -->
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gamefx.MainMenu"
+      alignment="CENTER"
+      spacing="15"
+      stylesheets="@./style.css">
+
+    <!-- Page 1 -->
+    <VBox fx:id="page1Box" spacing="10" alignment="CENTER">
+        <Label text="Game Main Menu"
+               style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <TextField fx:id="nameField" promptText="Enter your name" maxWidth="250" style="-fx-prompt-text-fill: gray;"/>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Singleplayer" onAction="#handleSingleplayer"/>
+            <Button text="Multiplayer" onAction="#handleMultiplayer"/>
+        </HBox>
+
+        <Button text="Close" onAction="#handleClose"/>
+    </VBox>
+
+    <!-- Page 2: Multiplayer -->
+    <VBox fx:id="multiplayerBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+        <TextField fx:id="hostPortField" promptText="Host:Port (e.g. localhost:5555)" maxWidth="250"/>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Host" onAction="#handleHost"/>
+            <Button text="Join" onAction="#handleJoin"/>
+        </HBox>
+
+        <!-- Return Button -->
+        <Button text="Return" onAction="#handleReturn"/>
+    </VBox>
+
+</VBox>

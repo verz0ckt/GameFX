@@ -1,39 +1,27 @@
 package gamefx.objects;
 
 import gamefx.util.Quaternion;
-import javafx.scene.canvas.GraphicsContext;
 
 import java.util.Arrays;
 
-/**
- * Beschreiben Sie hier die Klasse Player.
- * 
- * @author (Ihr Name) 
- * @version (eine Versionsnummer oder ein Datum)
- */
 public class Player extends Object
 {
 
-    private boolean mainPlayer;
+    public String name;
 
 
-    public Player(double[] pos, Quaternion rot,boolean mainPlayer) {
+    public Player(String name, double[] pos, Quaternion rot) {
         super(pos,rot,32);
-        this.mainPlayer = mainPlayer;
+        this.name = name;
         model = new PlayerModel();
 
     }
-    public Player(double[] pos, boolean mainPlayer) {
+    public Player(String name, double[] pos) {
         super(pos, 32);
-        this.mainPlayer = mainPlayer;
+        this.name = name;
         model = new PlayerModel();
     }
-    public Player(double[] pos) {
-        super(pos,32);
-        mainPlayer = false;
-        model = new PlayerModel();
 
-    }
     public void move(double[] pos){
         rot.apply(pos);
         this.pos[0]+= pos[0];

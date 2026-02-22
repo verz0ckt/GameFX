@@ -3,12 +3,14 @@ package gamefx;
 
 
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.input.*;
 
 import java.util.HashMap;
 
 
 public class GameKey implements EventHandler<InputEvent> {
+    private Scene scene;
 
     public enum Inputs{
         FORWARD,
@@ -25,8 +27,13 @@ public class GameKey implements EventHandler<InputEvent> {
         B1,B2,B3,B4,
         OTHER;
     }
-    public GameKey(){
+    public GameKey(Scene s){
+        this.scene = s;
         initKeybinds();
+    }
+    public void addHandlers(){
+        //TODO: separate handlers
+        scene.addEventHandler(InputEvent.ANY,this);
     }
 
     public final HashMap<Integer, Inputs> KEYBINDS = new HashMap<>();

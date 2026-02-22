@@ -32,15 +32,16 @@ public class Renderer extends Scene {
         return canvas;
     }
 
-    public Renderer(StackPane root) {
-        super(root);
+    public Renderer(Game game) {
+        super(new StackPane());
+        this.game = game;
+        StackPane root = (StackPane) getRoot();
         canvas = new Canvas();
         canvas.widthProperty().bind(
                 root.widthProperty());
         canvas.heightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(canvas);
-        game = Main.getGame();
         canvas.getGraphicsContext2D().setImageSmoothing(false);
         maxHeight = Screen.getPrimary().getBounds().getHeight();
         maxWidth = Screen.getPrimary().getBounds().getWidth();

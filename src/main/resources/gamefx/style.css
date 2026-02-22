@@ -1,0 +1,3 @@
+.text-field:focused {
+    -fx-prompt-text-fill: gray; /* visible even when focused */
+}

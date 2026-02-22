@@ -1,7 +1,6 @@
 package gamefx.objects;
 
 
-import gamefx.Game;
 import gamefx.Main;
 import gamefx.util.Matrix;
 import gamefx.util.Quaternion;
@@ -150,7 +149,6 @@ public abstract class Object {
                      offset[1] = pos[1];
                      offset[2] = pos[2];
                      renderer.setRelToCam(offset);
-                     System.out.println(Arrays.toString(offset));
                      renderer.getCamRotationMatrix().apply(offset);
 
                  } else {

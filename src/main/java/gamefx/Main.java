@@ -1,6 +1,10 @@
 package gamefx;
 
+import gamefx.multiplayer.Client;
+import gamefx.multiplayer.Host;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
@@ -25,15 +29,32 @@ public class Main extends Application {
         mainStage = stage;
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-        stage.setScene(new MainMenu());
         stage.show();
+        startGame("main");
+        //startMainMenu();
     }
-
-    protected static void startGame() {
-        game = new Game();
-        game.init(mainStage);
+    protected static void startMainMenu() throws Exception{
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("MainMenu.fxml"));
+        Scene scene = new Scene(loader.load(), 1200, 600);
+        mainStage.setScene(scene);
+    }
+    protected static void startMultiplayer(String name,String host,boolean isHost){
+        //parse hostName
+        String hostName = "localhost";
+        int port = 42069;
+        if(isHost){
+            game = new Host(mainStage,port);
+        }else {
+            game = new Client(mainStage,hostName,port);
+        }
+        game.init(name);
         mainStage.setScene(game.getRenderer());
-        //mainStage.show();
+        game.start();
+    }
+    protected static void startGame(String name) {
+        game = new Game(mainStage);
+        game.init(name);
+        mainStage.setScene(game.getRenderer());
         game.start();
     }
 
@@ -42,11 +63,14 @@ public class Main extends Application {
             mainStage.close();
             return;
         }
-        mainStage.setScene(new MainMenu());
-
+        try {
+            startMainMenu();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    protected static void setClose() {
+    public static void setClose() {
         close = true;
     }
 }
