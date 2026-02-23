@@ -19,8 +19,6 @@ public class Game
     protected boolean stop = false;
     protected Player mainPlayer;
     protected Cam cam;
-    protected Player[] otherPlayers;
-    protected int playerNum = 0;
     public Player getMainPlayer() {
         return mainPlayer;
     }
@@ -50,7 +48,6 @@ public class Game
         };
         //objects
         objects = new ArrayList<>();
-        otherPlayers = new Player[8];
     }
     public void init(String name){
         stage.setOnCloseRequest(windowEvent -> {
@@ -63,38 +60,11 @@ public class Game
         cam = new Cam(mainPlayer.head,new double[]{0,8,0});
         //testobjects
         plane = new PlaneObj(new double[]{0,0,0},500);
-        addOtherPlayer(new Player("other",new double[3]));
+        objects.add(new Player("other",new double[3]));
         objects.add(new Block(new double[]{100, 16, 0}, 32));
         objects.add(new Block(new double[]{200, 32, 0}, 64));
         //stressInit2(objects,1000);
 
-    }
-    public boolean addOtherPlayer(Player player){
-        if(playerNum < 8) {
-            otherPlayers[playerNum] = player;
-            playerNum++;
-            return true;
-        }else {
-            return false;
-        }
-    }
-    public Player popOtherPlayer(){
-        playerNum--;
-        Player p = otherPlayers[playerNum];
-        otherPlayers[playerNum] = null;
-        return p;
-    }
-    public Player removeOtherPlayer(int index){
-        if(playerNum <= index){
-            return null;
-        }
-        Player p = otherPlayers[index];
-        playerNum--;
-        while (index < playerNum){
-            otherPlayers[index] = otherPlayers[++index];
-        }
-        otherPlayers[playerNum] = null;
-        return p;
     }
     private void stressInit2(ArrayList<Object> objects, int max){
         for(int i = 0;i<max;i++) {
@@ -117,13 +87,6 @@ public class Game
         return cam;
     }
 
-    public Player[] getOtherPlayers() {
-        return otherPlayers;
-    }
-
-    public int getPlayerNum() {
-        return playerNum;
-    }
 
     public void start(){
         clock.start();

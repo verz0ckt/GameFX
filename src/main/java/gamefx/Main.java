@@ -14,6 +14,16 @@ public class Main extends Application {
     private static boolean close = false;
     private static Stage mainStage;
 
+    /// debug
+    private final int MODE = 1; //0= normal;1= server; 2= client;
+    private void testStart(){
+        switch (MODE){
+            case 1->startMultiplayer("main","localhost:42069",false);
+            case 2->startMultiplayer("other",":42069",true);
+            default -> startGame("main");
+        }
+    }
+    /// debug end
 
     public static Main getInstance() {
         return instance;
@@ -30,8 +40,8 @@ public class Main extends Application {
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.show();
-        startGame("main");
-        //startMainMenu();
+        startMainMenu();
+        testStart(); //debug
     }
     protected static void startMainMenu() throws Exception{
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("MainMenu.fxml"));

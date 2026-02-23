@@ -92,9 +92,6 @@ public class Renderer extends Scene {
         for (Object o : game.objects) {
             o.getModel().draw(gc);
         }
-        for (int i = 0; i< game.getPlayerNum();i++){
-            game.getOtherPlayers()[i].getModel().draw(gc);
-        }
         if(game.getCam().getPerspective() >1){
             game.getMainPlayer().getModel().draw(gc);
         }

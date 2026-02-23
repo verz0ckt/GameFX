@@ -8,26 +8,26 @@ import gamefx.objects.Player;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Socket;
+import java.net.*;
 
 public class Client extends Game {
 
+    char id;
     public Client(Stage stage,String host,int port) {
         super(stage);
         try {
-            TCPSocket = new Socket(host, port,null,port);
+            TCPSocket = new Socket(host,port,null,port);
             TCPSocket.setKeepAlive(true);
             socket = new DatagramSocket(port);
+            inputToSend = new byte[9];
+            receiveBuffer = new byte[1024];
+            InetSocketAddress addr = new InetSocketAddress(host,port);
+            sendPacket = new DatagramPacket(inputToSend, inputToSend.length,addr);
+            receivePacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);
         } catch (IOException _) {
             Main.tryClose();
         }
-        inputToSend = new byte[8];
-        sendPacket = new DatagramPacket(inputToSend,8);
-        receiveBuffer = new byte[1024];
-        receivePacket = new DatagramPacket(receiveBuffer,1024);
-
+        System.out.println("test");
     }
 
     @Override
@@ -38,15 +38,33 @@ public class Client extends Game {
             windowEvent.consume();
         });
         gameKey.addHandlers();
-        mainPlayer = startFetch(name);
+        mainPlayer = login(name);
         cam = new Cam(mainPlayer.head,new double[]{0,8,0});
     }
+
+    @Override
+    public void start() {
+        super.start();
+        startFetch();
+    }
+
     private Socket TCPSocket;
     private DatagramSocket socket;
-    public Player startFetch(String name){
-
-        addOtherPlayer(new Player("Main",new double[3]));
+    public Player login(String name){
+        objects.add(new Player("Main",new double[3]));
+        id = 1;
         return new Player(name,new double[3]);
+    }
+    public void startFetch(){
+        new Thread(() -> {
+            while (!stop){
+                try {
+                    socket.receive(receivePacket);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
     }
     private byte[] inputToSend;
     private byte[] receiveBuffer;
@@ -55,14 +73,30 @@ public class Client extends Game {
     public void sendInput(){
         int pressed = gameKey.getPressed();
         int released = gameKey.getReleased();
-        inputToSend[0] = (byte) (pressed>>>24);
-        inputToSend[1] = (byte) (pressed>>>16);
-        inputToSend[2] = (byte) (pressed>>>8);
-        inputToSend[3] = (byte) (pressed);
-        inputToSend[4] = (byte) (released>>>24);
-        inputToSend[5] = (byte) (released>>>16);
-        inputToSend[6] = (byte) (released>>>8);
-        inputToSend[7] = (byte) (released);
+        inputToSend[0] = (byte) id;
+        inputToSend[1] = (byte) (pressed>>>24);
+        inputToSend[2] = (byte) (pressed>>>16);
+        inputToSend[3] = (byte) (pressed>>>8);
+        inputToSend[4] = (byte) (pressed);
+        inputToSend[5] = (byte) (released>>>24);
+        inputToSend[6] = (byte) (released>>>16);
+        inputToSend[7] = (byte) (released>>>8);
+        inputToSend[8] = (byte) (released);
+        try {
+            socket.send(sendPacket);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void fetch(){
+        try {
+            socket.receive(receivePacket);
+        } catch (IOException e) {
+            if(!stop) {
+                throw new RuntimeException(e);
+            }
+        }
+        // work with packet
     }
 
     @Override
@@ -77,5 +111,16 @@ public class Client extends Game {
             gameKey.unset(GameKey.Inputs.PERSPECTIVE);
         }
         sendInput();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            TCPSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        socket.close();
+        super.stop();
     }
 }
