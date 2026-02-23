@@ -58,7 +58,7 @@ public class Main extends Application {
         game.start();
     }
 
-    protected static void tryClose() {
+    public static void tryClose() {
         if (close) {
             mainStage.close();
             return;
