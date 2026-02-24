@@ -29,7 +29,7 @@ public class Client extends Game {
         } catch (IOException _) {
             Main.tryClose();
         }
-        otherPlayers = new ArrayList<>(8);
+        otherPlayers = new ArrayList<>(7);
         System.out.println("test");
     }
 

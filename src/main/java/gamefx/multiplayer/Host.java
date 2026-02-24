@@ -14,13 +14,16 @@ import java.net.ServerSocket;
 public class Host extends Game {
     private final ClientPlayer[] otherPlayers;
     private char playerNum;
+    public static final char MAXPLAYER = 7;
     private ServerSocket TCPSocket;
     private DatagramSocket socket;
+    int[] otherPressed;
     public Host(Stage stage, int port) {
         super(stage);
-        otherPlayers = new ClientPlayer[7];
+        otherPlayers = new ClientPlayer[MAXPLAYER];
         playerNum = 0;
-        sendBuffer = new byte[8*Player.BYTESIZEFORNEW];
+        otherPressed = new int[MAXPLAYER];
+        sendBuffer = new byte[(MAXPLAYER+1)*Player.BYTESIZEFORNEW];
         sendPacket = new DatagramPacket(sendBuffer,sendBuffer.length);
         lastUpdateTime = System.nanoTime();
         try {
@@ -29,6 +32,9 @@ public class Host extends Game {
         } catch (IOException _) {
             Main.tryClose();
         }
+    }
+    private static void movePlayer(ClientPlayer p){
+
     }
 
     public boolean addOtherPlayer(ClientPlayer player){
@@ -83,7 +89,7 @@ public class Host extends Game {
     }
     private byte[] sendBuffer;
     private DatagramPacket sendPacket;
-    private void sendMovement(){
+    private void sendPlayer(){
         int offset = addPlayerToBuffer(mainPlayer, (char) 0,sendBuffer,0);
         for(ClientPlayer p : otherPlayers){
             offset = addPlayerToBuffer(p.getPlayer(),p.getId(),sendBuffer, offset);
@@ -126,9 +132,10 @@ public class Host extends Game {
     @Override
     public void update(){
         super.update();
+
         lastUpdateTime += lastUpdateTime;
         if(lastUpdateTime-System.nanoTime() >= 20_000_000){
-            sendMovement();
+            sendPlayer();
             lastUpdateTime += 20_000_000;
         }
     }
