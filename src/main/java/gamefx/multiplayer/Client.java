@@ -112,10 +112,10 @@ public class Client extends Game {
             int i = 0;
             while(i < receiveBuffer.length && receiveBuffer[i] != -1 ){
                 int playerID = receiveBuffer[i++];
-                if(playerID == id){
+                if(playerID == this.id){
                     i = updatePlayerFromBytes(mainPlayer,receiveBuffer,i);
-                }else if(playerID == 0){
-                    i = updatePlayerFromBytes(otherPlayers.get(id),receiveBuffer,i);
+                }else if(playerID == Host.MAXPLAYERS){
+                    i = updatePlayerFromBytes(otherPlayers.get(this.id),receiveBuffer,i);
                 }else {
                     i = updatePlayerFromBytes(otherPlayers.get(playerID), receiveBuffer, i);
                 }
