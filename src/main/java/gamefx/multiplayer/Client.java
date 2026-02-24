@@ -3,12 +3,15 @@ package gamefx.multiplayer;
 import gamefx.Game;
 import gamefx.GameKey;
 import gamefx.Main;
-import gamefx.objects.Cam;
-import gamefx.objects.Player;
+import gamefx.objects.*;
+import gamefx.objects.Object;
+import gamefx.util.Quaternion;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Client extends Game {
@@ -18,8 +21,8 @@ public class Client extends Game {
     public Client(Stage stage,String host,int port) {
         super(stage);
         try {
-            TCPSocket = new Socket(host,port,null,port);
-            TCPSocket.setKeepAlive(true);
+            tcpSocket = new Socket(host,port,null,port);
+            tcpSocket.setKeepAlive(true);
             socket = new DatagramSocket(port);
             inputToSend = new byte[9];
             receiveBuffer = new byte[8*(Player.BYTESIZEFORNEW+1)];
@@ -29,6 +32,8 @@ public class Client extends Game {
         } catch (IOException _) {
             Main.tryClose();
         }
+        assert tcpSocket != null;
+        assert socket != null;
         otherPlayers = new ArrayList<>(7);
         System.out.println("test");
     }
@@ -47,17 +52,54 @@ public class Client extends Game {
 
     @Override
     public void start() {
-        super.start();
         startFetch();
+        super.start();
     }
 
-    private Socket TCPSocket;
+    private Socket tcpSocket;
     private DatagramSocket socket;
-    public Player login(String name){
-        objects.add(new Player("Main",new double[3]));
-        id = 1;
-        return new Player(name,new double[3]);
+    public Player login(String name) {
+        try {
+            tcpSocket.getOutputStream().write(0x1);
+            tcpSocket.getOutputStream().write(name.getBytes(StandardCharsets.UTF_8));
+            tcpSocket.getOutputStream().flush();
+            int type = tcpSocket.getInputStream().read();
+            assert type != -1;
+            if (type == 1) {
+                readLogin(tcpSocket.getInputStream());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new Player(name, new double[3]);
     }
+    //0x01,id,8*pos*3,8*rot*4,
+    public Player readLogin(InputStream stream){
+        try {
+
+            assert stream.read() == 0x01;
+            id = (char) stream.read();
+            while (true){
+                switch(stream.read()){
+                    case Player.ID ->{
+
+                    }
+                    case Block.ID ->{
+
+                    }
+                    case PlaneObj.ID ->{
+
+                    }
+                    default -> throw new RuntimeException();
+                }
+            }
+            //return new Player("", new double[3]);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public void startFetch(){
         new Thread(() -> {
             while (!stop){
@@ -113,25 +155,25 @@ public class Client extends Game {
             while(i < receiveBuffer.length && receiveBuffer[i] != -1 ){
                 int playerID = receiveBuffer[i++];
                 if(playerID == this.id){
-                    i = updatePlayerFromBytes(mainPlayer,receiveBuffer,i);
+                    i = updateObjectFromBytes(mainPlayer,receiveBuffer,i);
                 }else if(playerID == Host.MAXPLAYERS){
-                    i = updatePlayerFromBytes(otherPlayers.get(this.id),receiveBuffer,i);
+                    i = updateObjectFromBytes(otherPlayers.get(this.id),receiveBuffer,i);
                 }else {
-                    i = updatePlayerFromBytes(otherPlayers.get(playerID), receiveBuffer, i);
+                    i = updateObjectFromBytes(otherPlayers.get(playerID), receiveBuffer, i);
                 }
             }
             receiveBufferNew = false;
         }
     }
-    public int updatePlayerFromBytes(Player p,byte[] bytes,int offset){
+    public int updateObjectFromBytes(Object o, byte[] bytes, int offset){
         double x = getDoublefromBytes(bytes,offset);
         offset+= 8;
         double y = getDoublefromBytes(bytes,offset);
         offset+=8;
         double z = getDoublefromBytes(bytes,offset);
         offset+=8;
-        p.setPos(x,y,z);
-        Quaternion rot = p.getRot();
+        o.setPos(x,y,z);
+        Quaternion rot = o.getRot();
         rot.setW(getDoublefromBytes(bytes,offset));
         offset+=8;
         rot.setI(getDoublefromBytes(bytes,offset));
@@ -143,13 +185,13 @@ public class Client extends Game {
         return offset;
     }
     public double getDoublefromBytes(byte[] buffer, int offset){
-        return (buffer[i++]<<56)+(buffer[i++]<<48)+(buffer[i++]<<40)+(buffer[i++]<<32)+(buffer[i++]<<24)+(buffer[i++]<<16)+(buffer[i++]<<8)+buffer[i];
+        return (buffer[offset++]<<56)+(buffer[offset++]<<48)+(buffer[offset++]<<40)+(buffer[offset++]<<32)+(buffer[offset++]<<24)+(buffer[offset++]<<16)+(buffer[offset++]<<8)+buffer[offset];
     }
 
     @Override
     public void stop() {
         try {
-            TCPSocket.close();
+            tcpSocket.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -30,6 +30,7 @@ public abstract class Object {
 
     //Multiplayer
     public static final int BYTESIZEFORNEW = 8*Double.BYTES;
+    public static final char ID = 0;
 
     public Object(Object parent, double[] pos, double size) {
         this.parent = parent;
@@ -114,13 +115,16 @@ public abstract class Object {
         return rot;
     }
 
-    @Deprecated
-    public void rotateAngle(double amount,double x,double y, double z){
-        rot.multiply(Quaternion.fromAngle(amount,x,y,z));
+
+    public void rotateAngle(double amount,double v1,double v2, double v3){
+        rot.multiply(Quaternion.fromAngle(amount,v1,v2,v3));
         rot.tryNormalize();
     }
     public void rotate(double x,double y,double z){
-        //TODO: add rotate then delete this
+        Quaternion rot = Quaternion.fromEuler(x,1,0,0);
+        rot.multiply(Quaternion.fromEuler(y,0,1,0));
+        rot.multiply(Quaternion.fromEuler(z,0,0,1));
+        this.rot.multiply(rot);
     }
 
     public void applyOffsetToPoint(double[] pos){
@@ -194,4 +198,7 @@ public abstract class Object {
                 ", pos=" + Arrays.toString(pos) +
                 '}';
     }
+    public abstract char getId();
+
+    public abstract void toBuffer(byte[] buffer,int offset,int size);
 }

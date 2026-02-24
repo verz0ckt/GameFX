@@ -9,7 +9,8 @@ public class Player extends Object
 
     public String name;
 
-
+    //Multiplayer
+    public static final char ID = (char) 0b0001_0000;
 
     public Player(String name, double[] pos, Quaternion rot) {
         super(pos,rot,32);
@@ -65,11 +66,19 @@ public class Player extends Object
         }
     }
 
+    public String getName() {
+        return name;
+    }
 
     @Override
     public String toString() {
         return "Player{" +
                 "pos=" + Arrays.toString(pos) +
                 '}';
+    }
+
+    @Override
+    public char getId() {
+        return ID;
     }
 }

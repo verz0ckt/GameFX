@@ -2,6 +2,9 @@ package gamefx;
 
 import gamefx.multiplayer.Client;
 import gamefx.multiplayer.Host;
+import gamefx.objects.Block;
+import gamefx.objects.Object;
+import gamefx.util.Quaternion;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -10,12 +13,12 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     private static Main instance;
-    private static Game game;
+    static Game game;
     private static boolean close = false;
     private static Stage mainStage;
 
     /// debug
-    private final int MODE = 1; //0= normal;1= server; 2= client;
+    public static int MODE = 0; //0= normal;1= server; 2= client;
     private void testStart(){
         switch (MODE){
             case 1->startMultiplayer("main","localhost:42069",false);
@@ -69,6 +72,7 @@ public class Main extends Application {
     }
 
     public static void tryClose() {
+        System.out.println("closing");
         if (close) {
             mainStage.close();
             return;

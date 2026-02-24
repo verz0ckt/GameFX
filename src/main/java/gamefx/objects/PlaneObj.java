@@ -11,6 +11,9 @@ import javafx.scene.paint.Color;
 public class PlaneObj extends Object{
 
 
+        //Multiplayer
+        public static final char ID = (char) 0b0011_0000;
+
         public PlaneObj(double[] pos, Quaternion rot, double size)
         {
             super(pos,rot,size);
@@ -22,6 +25,7 @@ public class PlaneObj extends Object{
             super(pos,size);
             model = new PlaneModel();
         }
+
 
     public class PlaneModel extends ObjectModel {
             public PlaneModel() {
@@ -45,4 +49,9 @@ public class PlaneObj extends Object{
 
             }
         }
+
+    @Override
+    public char getId() {
+        return ID;
     }
+}

@@ -12,8 +12,10 @@ public class Block extends Object{
         private double height;
         private double length;
         private double width;
-        public static final int BYTESIZEFORNEW = Object.BYTESIZEFORNEW+3*Double.BYTES;
 
+        //Multiplayer
+        public static final int BYTESIZEFORNEW = Object.BYTESIZEFORNEW+3*Double.BYTES;
+        public static final char ID = (char) 0b0010_0000;
 
         public Block(double[] pos, Quaternion rot, double size) {
                 super(pos,rot,size);
@@ -88,4 +90,9 @@ public class Block extends Object{
             }
 
     }
+
+        @Override
+        public char getId() {
+                return ID;
+        }
 }

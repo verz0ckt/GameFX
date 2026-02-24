@@ -87,7 +87,7 @@ public class Renderer extends Scene {
         camPos[0] = camOffset[0];
         camPos[1] = camOffset[1];
         camPos[2] = camOffset[2];
-        game.plane.getModel().draw(gc);
+        //game.plane.getModel().draw(gc);
         sortObjects(game.objects);
         for (Object o : game.objects) {
             o.getModel().draw(gc);

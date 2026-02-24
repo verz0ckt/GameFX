@@ -75,4 +75,9 @@ public class Cam extends Object{
             }
         }
     }
+
+    @Override
+    public char getId() {
+        return ID;
+    }
 }
