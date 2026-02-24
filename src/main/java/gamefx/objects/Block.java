@@ -12,6 +12,7 @@ public class Block extends Object{
         private double height;
         private double length;
         private double width;
+        public static final int BYTESIZEFORNEW = Object.BYTESIZEFORNEW+3*Double.BYTES;
 
 
         public Block(double[] pos, Quaternion rot, double size) {

@@ -28,6 +28,9 @@ public abstract class Object {
     //dont use
     public double distance;
 
+    //Multiplayer
+    public static final int BYTESIZEFORNEW = 8*Double.BYTES;
+
     public Object(Object parent, double[] pos, double size) {
         this.parent = parent;
         this.pos = pos;
@@ -93,7 +96,14 @@ public abstract class Object {
     }
 
     public void setPos(double[] pos) {
-        this.pos = pos;
+        this.pos[0] = pos[0];
+        this.pos[1] = pos[1];
+        this.pos[2] = pos[2];
+    }
+    public void setPos(double x, double y, double z) {
+        this.pos[0] = x;
+        this.pos[1] = y;
+        this.pos[2] = z;
     }
 
     public Matrix getRenderingRotationMatrix() {

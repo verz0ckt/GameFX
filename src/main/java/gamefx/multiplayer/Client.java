@@ -9,9 +9,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Client extends Game {
 
+    private ArrayList<Player> otherPlayers;
     char id;
     public Client(Stage stage,String host,int port) {
         super(stage);
@@ -20,13 +22,14 @@ public class Client extends Game {
             TCPSocket.setKeepAlive(true);
             socket = new DatagramSocket(port);
             inputToSend = new byte[9];
-            receiveBuffer = new byte[1024];
+            receiveBuffer = new byte[8*(Player.BYTESIZEFORNEW+1)];
             InetSocketAddress addr = new InetSocketAddress(host,port);
             sendPacket = new DatagramPacket(inputToSend, inputToSend.length,addr);
             receivePacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);
         } catch (IOException _) {
             Main.tryClose();
         }
+        otherPlayers = new ArrayList<>(8);
         System.out.println("test");
     }
 
@@ -60,14 +63,19 @@ public class Client extends Game {
             while (!stop){
                 try {
                     socket.receive(receivePacket);
+                    receiveBufferNew = true;
+                    sendInput();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    if(!stop) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }).start();
     }
     private byte[] inputToSend;
     private byte[] receiveBuffer;
+    private boolean receiveBufferNew;
     private DatagramPacket sendPacket;
     private DatagramPacket receivePacket;
     public void sendInput(){
@@ -88,16 +96,6 @@ public class Client extends Game {
             throw new RuntimeException(e);
         }
     }
-    public void fetch(){
-        try {
-            socket.receive(receivePacket);
-        } catch (IOException e) {
-            if(!stop) {
-                throw new RuntimeException(e);
-            }
-        }
-        // work with packet
-    }
 
     @Override
     public void update() {
@@ -110,7 +108,24 @@ public class Client extends Game {
             System.out.println(cam.togglePerspective());
             gameKey.unset(GameKey.Inputs.PERSPECTIVE);
         }
-        sendInput();
+        if(receiveBufferNew){
+            int i = 0;
+            while(i < receiveBuffer.length && receiveBuffer[i] != -1 ){
+                int playerID = receiveBuffer[i++];
+                if(playerID == id){
+                    i = updatePlayerFromBytes(mainPlayer,receiveBuffer,i);
+                }else if(playerID == 0){
+                    i = updatePlayerFromBytes(otherPlayers.get(id),receiveBuffer,i);
+                }else {
+                    i = updatePlayerFromBytes(otherPlayers.get(playerID), receiveBuffer, i);
+                }
+            }
+            receiveBufferNew = false;
+        }
+    }
+    public int updatePlayerFromBytes(Player p,byte[] bytes,int offset){
+
+        return offset;
     }
 
     @Override

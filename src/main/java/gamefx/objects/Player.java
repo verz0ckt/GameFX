@@ -10,6 +10,7 @@ public class Player extends Object
     public String name;
 
 
+
     public Player(String name, double[] pos, Quaternion rot) {
         super(pos,rot,32);
         this.name = name;

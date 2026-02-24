@@ -2,31 +2,33 @@ package gamefx.multiplayer;
 
 import gamefx.Game;
 import gamefx.Main;
+import gamefx.objects.Player;
+import gamefx.util.Quaternion;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
-import java.util.ArrayList;
 
 public class Host extends Game {
-    ArrayList<Integer> dirty;
     private final ClientPlayer[] otherPlayers;
     private char playerNum;
     private ServerSocket TCPSocket;
     private DatagramSocket socket;
     public Host(Stage stage, int port) {
         super(stage);
-        otherPlayers = new ClientPlayer[8];
+        otherPlayers = new ClientPlayer[7];
         playerNum = 0;
-        dirty = new ArrayList<>(8);
+        sendBuffer = new byte[8*Player.BYTESIZEFORNEW];
+        sendPacket = new DatagramPacket(sendBuffer,sendBuffer.length);
+        lastUpdateTime = System.nanoTime();
         try {
             TCPSocket = new ServerSocket(port);
             socket = new DatagramSocket(port);
         } catch (IOException _) {
             Main.tryClose();
         }
-
     }
 
     public boolean addOtherPlayer(ClientPlayer player){
@@ -79,9 +81,55 @@ public class Host extends Game {
         }).start();
         super.init(name);
     }
-
+    private byte[] sendBuffer;
+    private DatagramPacket sendPacket;
+    private void sendMovement(){
+        int offset = addPlayerToBuffer(mainPlayer, (char) 0,sendBuffer,0);
+        for(ClientPlayer p : otherPlayers){
+            offset = addPlayerToBuffer(p.getPlayer(),p.getId(),sendBuffer, offset);
+        }
+        for(ClientPlayer p : otherPlayers){
+            sendPacket.setSocketAddress(p.getAddr());
+            try {
+                socket.send(sendPacket);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public int addPlayerToBuffer(Player p,char id,byte[] buffer,int offset){
+        buffer[offset++] = (byte)id;
+        double[] pos = p.getPos();
+        offset = addDoubletoBuffer(pos[0],buffer,offset);
+        offset = addDoubletoBuffer(pos[1],buffer,offset);
+        offset = addDoubletoBuffer(pos[2],buffer,offset);
+        Quaternion rot = p.getRot();
+        offset = addDoubletoBuffer(rot.getW(),buffer,offset);
+        offset = addDoubletoBuffer(rot.getI(),buffer,offset);
+        offset = addDoubletoBuffer(rot.getJ(),buffer,offset);
+        offset = addDoubletoBuffer(rot.getK(),buffer,offset);
+        return offset;
+    }
+    public int addDoubletoBuffer(double d,byte[] buffer, int offset){
+        long value = Double.doubleToLongBits(d);
+        buffer[offset++] = (byte) (value>>>56);
+        buffer[offset++] = (byte) (value>>>48);
+        buffer[offset++] = (byte) (value>>>40);
+        buffer[offset++] = (byte) (value>>>32);
+        buffer[offset++] = (byte) (value>>>24);
+        buffer[offset++] = (byte) (value>>>16);
+        buffer[offset++] = (byte) (value>>>8);
+        buffer[offset++] = (byte) (value);
+        return offset;
+    }
+    private long lastUpdateTime;
     @Override
     public void update(){
         super.update();
+        lastUpdateTime += lastUpdateTime;
+        if(lastUpdateTime-System.nanoTime() >= 20_000_000){
+            sendMovement();
+            lastUpdateTime += 20_000_000;
+        }
     }
 }
