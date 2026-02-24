@@ -124,8 +124,26 @@ public class Client extends Game {
         }
     }
     public int updatePlayerFromBytes(Player p,byte[] bytes,int offset){
-
+        double x = getDoublefromBytes(bytes,offset);
+        offset+= 8;
+        double y = getDoublefromBytes(bytes,offset);
+        offset+=8;
+        double z = getDoublefromBytes(bytes,offset);
+        offset+=8;
+        p.setPos(x,y,z);
+        Quaternion rot = p.getRot();
+        rot.setW(getDoublefromBytes(bytes,offset));
+        offset+=8;
+        rot.setI(getDoublefromBytes(bytes,offset));
+        offset+=8;
+        rot.setJ(getDoublefromBytes(bytes,offset));
+        offset+=8;
+        rot.setK(getDoublefromBytes(bytes,offset));
+        offset+=8;
         return offset;
+    }
+    public double getDoublefromBytes(byte[] buffer, int offset){
+        return (buffer[i++]<<56)+(buffer[i++]<<48)+(buffer[i++]<<40)+(buffer[i++]<<32)+(buffer[i++]<<24)+(buffer[i++]<<16)+(buffer[i++]<<8)+buffer[i];
     }
 
     @Override

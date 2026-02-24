@@ -34,7 +34,24 @@ public class Host extends Game {
         }
     }
     private static void movePlayer(ClientPlayer p){
-
+        int pressed = otherPressed[p.getId()];
+        Player player = p.getPlayer();
+        double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
+        double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
+        if ((x != 0) || (z != 0)) {
+            player.move(x, y, z);
+        }
+        int rotz = (((pressed >>> GameKey.Inputs.UP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.DOWN.ordinal()) & 1));
+        int roty = (((pressed >>> GameKey.Inputs.TRIGHT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.TLEFT.ordinal()) & 1));
+        if (roty != 0) {
+            player.rotateAngle(deltatime, 0, roty, 0);
+        }
+        if (rotz != 0) {
+            Quaternion rot = player.head.getRot();
+            rot.multiply(Quaternion.fromAngle(deltatime, 0, 0, rotz));
+            rot.setW(Math.max(rot.getW(), 0.7071067812));
+            rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
+        }
     }
 
     public boolean addOtherPlayer(ClientPlayer player){
@@ -132,8 +149,9 @@ public class Host extends Game {
     @Override
     public void update(){
         super.update();
-
-        lastUpdateTime += lastUpdateTime;
+        for(ClientPlayer p : otherPlayers){
+            movePlayer(p);
+        }
         if(lastUpdateTime-System.nanoTime() >= 20_000_000){
             sendPlayer();
             lastUpdateTime += 20_000_000;
