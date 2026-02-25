@@ -198,7 +198,7 @@ public abstract class Object {
                 ", pos=" + Arrays.toString(pos) +
                 '}';
     }
-    public abstract char getId();
 
-    public abstract void toBuffer(byte[] buffer,int offset,int size);
+    public abstract char getId();
+    public abstract int toBuffer(byte[] buffer,int offset);
 }

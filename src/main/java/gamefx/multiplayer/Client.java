@@ -81,18 +81,21 @@ public class Client extends Game {
             assert stream.read() == 0x01;
             id = (char) stream.read();
             while (true){
+                Object o;
                 switch(stream.read()){
                     case Player.ID ->{
 
+                        continue;
                     }
                     case Block.ID ->{
-
+                        o = new Block(new double[3],32);
                     }
                     case PlaneObj.ID ->{
-
+                        o = new PlaneObj(new double[3],500);
                     }
                     default -> throw new RuntimeException();
                 }
+                updateObjectFromBytes(o,);
             }
             //return new Player("", new double[3]);
         }catch (IOException e){
