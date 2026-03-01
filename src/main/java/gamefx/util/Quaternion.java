@@ -3,7 +3,7 @@ package gamefx.util;
 public class Quaternion {
     private double w,i,j,k;
 
-    private Quaternion(double w, double i, double j, double k) {
+    public Quaternion(double w, double i, double j, double k) {
         this.w = w;
         this.i = i;
         this.j = j;

@@ -2,6 +2,8 @@ package gamefx.rendering;
 
 import gamefx.Game;
 import gamefx.Main;
+import gamefx.multiplayer.Client;
+import gamefx.multiplayer.Host;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
@@ -87,8 +89,9 @@ public class Renderer extends Scene {
         camPos[0] = camOffset[0];
         camPos[1] = camOffset[1];
         camPos[2] = camOffset[2];
-        //game.plane.getModel().draw(gc);
-        sortObjects(game.objects);
+        if(game.getClass() == Game.class) {
+            sortObjects(game.objects);
+        }
         for (Object o : game.objects) {
             o.getModel().draw(gc);
         }

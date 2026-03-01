@@ -14,24 +14,30 @@ public class Block extends Object{
         private double width;
 
         //Multiplayer
-        public static final int BYTESIZEFORNEW = Object.BYTESIZEFORNEW+3*Double.BYTES;
         public static final char ID = (char) 0b0010_0000;
 
         public Block(double[] pos, Quaternion rot, double size) {
                 super(pos,rot,size);
-                height = width = length = 1;
+                height = length = width = 1;
                 model = new BlockModel();
         }
         public Block(Object parent, double[] pos, Quaternion rot, double size) {
                 super(parent, pos, rot, size);
-                height = width = length = 1;
+                height = length = width = 1;
                 model = new BlockModel();
         }
-        public Block(Object parent, double[] pos, Quaternion rot, double size,double height,double width,double length) {
+        public Block(Object parent, double[] pos, Quaternion rot, double size,double height,double length,double width) {
                 super(parent, pos, rot, size);
                 this.height = height;
-                this.width = width;
                 this.length = length;
+                this.width = width;
+                model = new BlockModel();
+        }
+        public Block(double[] pos, Quaternion rot, double size,double height,double length,double width) {
+                super( pos, rot, size);
+                this.height = height;
+                this.length = length;
+                this.width = width;
                 model = new BlockModel();
         }
 
@@ -40,6 +46,19 @@ public class Block extends Object{
                 height = width = length = 1;
                 model = new BlockModel();
         }
+
+        public double getHeight() {
+                return height;
+        }
+
+        public double getLength() {
+                return length;
+        }
+
+        public double getWidth() {
+                return width;
+        }
+
         public class BlockModel extends ObjectModel {
                 public BlockModel() {
                         super();
@@ -89,10 +108,6 @@ public class Block extends Object{
                         }
                 }
 
-        }
-        @Override
-        public int toBuffer(byte[] buffer, int offset) {
-                return 0;
         }
 
         @Override

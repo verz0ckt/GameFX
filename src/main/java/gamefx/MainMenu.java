@@ -53,22 +53,37 @@ public class MainMenu {
 
     @FXML
     private void handleMultiplayerAction(boolean isHost) {
-        String name = nameField.getText().trim();
-        String hostPort = hostPortField.getText().trim();
 
-        if (hostPort.isEmpty()) return;
-
-        Main.startMultiplayer(name, hostPort, isHost);
     }
 
     @FXML
     private void handleHost() {
-        handleMultiplayerAction(true);
+        String name = nameField.getText().trim();
+        String portString = hostPortField.getText().trim();
+
+        if (portString.isEmpty()) return;
+        try {
+            int port = Integer.parseInt(portString.replace(":","").trim());
+            Main.startHost(name, port);
+        } catch (NumberFormatException e) {
+            return;
+        }
     }
 
     @FXML
     private void handleJoin() {
-        handleMultiplayerAction(false);
+        String name = nameField.getText().trim();
+        String hostPort = hostPortField.getText().trim();
+
+        if (hostPort.isEmpty()) return;
+        String[] parts = hostPort.split(":");
+        if (parts.length != 2) return;
+        try {
+            int port = Integer.parseInt(parts[1].trim());
+            Main.startClient(name, parts[0].trim(), port);
+        } catch (NumberFormatException _) {
+            return;
+        }
     }
 
     // ------------------- Close -------------------

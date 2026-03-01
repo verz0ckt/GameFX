@@ -20,7 +20,7 @@ public abstract class Object {
     }
     protected double[] pos;
     protected Quaternion rot;
-    public double size;
+    protected double size;
     //only use in rendering;
     protected Quaternion renderingQuaterion;
     protected Matrix rotMatrix;
@@ -29,7 +29,6 @@ public abstract class Object {
     public double distance;
 
     //Multiplayer
-    public static final int BYTESIZEFORNEW = 8*Double.BYTES;
     public static final char ID = 0;
 
     public Object(Object parent, double[] pos, double size) {
@@ -54,6 +53,12 @@ public abstract class Object {
     }
     public Object(double[] pos,double size) {
         this.pos = pos;
+        this.rot = Quaternion.zeroRot();
+        this.size = size;
+        init();
+    }
+    public Object(double size) {
+        this.pos = new double[3];
         this.rot = Quaternion.zeroRot();
         this.size = size;
         init();
@@ -133,6 +138,16 @@ public abstract class Object {
         pos[2] += offset[2];
     }
 
+    public double getSize() {
+        return size;
+    }
+
+    public void setSize(double size) {
+        double scalar = size/this.size;
+        model.scale(scalar,scalar,scalar);
+        this.size = size;
+    }
+
     public abstract class ObjectModel{
         protected Point[] points;
         protected Drawable[] drawable;
@@ -148,6 +163,14 @@ public abstract class Object {
                 pos[0] += x;
                 pos[1] += y;
                 pos[2] += z;
+            }
+        }
+        public void scale(double x,double y,double z){
+            for(Point p : points){
+                double[] pos = p.getPosition();
+                pos[0] *= x;
+                pos[1] *= y;
+                pos[2] *= z;
             }
         }
         public Object getObject(){
@@ -193,12 +216,22 @@ public abstract class Object {
         }
     }
 
+    @Override
     public String toString() {
+        if(parent != null){
+            return "Object{" +
+                    "pos=" + Arrays.toString(pos) +
+                    ", rot=" + rot +
+                    ", size=" + size +
+                    ", parent=" + parent +
+                    '}';
+        }
         return "Object{" +
-                ", pos=" + Arrays.toString(pos) +
+                "pos=" + Arrays.toString(pos) +
+                ", rot=" + rot +
+                ", size=" + size +
                 '}';
     }
 
     public abstract char getId();
-    public abstract int toBuffer(byte[] buffer,int offset);
 }

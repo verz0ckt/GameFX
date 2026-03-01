@@ -18,13 +18,18 @@ public class Main extends Application {
     private static Stage mainStage;
 
     /// debug
-    public static int MODE = 0; //0= normal;1= server; 2= client;
-    private void testStart(){
-        switch (MODE){
-            case 1->startMultiplayer("main","localhost:42069",false);
-            case 2->startMultiplayer("other",":42069",true);
+    //0= normal;1= server; 2= client;
+    private void testStart(int mode){
+        switch (mode){
+            case 1->startHost("main",42069);
+            case 2->startClient("other","localhost",42069);
             default -> startGame("main");
         }
+    }
+    public static int debug = -1;
+    public static void main(String[] args) {
+        debug = Integer.parseInt(args[0].trim());
+        launch();
     }
     /// debug end
 
@@ -43,23 +48,32 @@ public class Main extends Application {
         stage.setFullScreenExitHint("");
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.show();
-        startMainMenu();
-        testStart(); //debug
+
+        if(debug == -1){ //debug
+            startMainMenu();
+        }else {
+            testStart(debug); //debug
+        }
     }
     protected static void startMainMenu() throws Exception{
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("MainMenu.fxml"));
         Scene scene = new Scene(loader.load(), 1200, 600);
         mainStage.setScene(scene);
     }
-    protected static void startMultiplayer(String name,String host,boolean isHost){
-        //parse hostName
-        String hostName = "localhost";
-        int port = 42069;
-        if(isHost){
-            game = new Host(mainStage,port);
-        }else {
-            game = new Client(mainStage,hostName,port);
+    protected static void startHost(String name,int port){
+        if(name.length() >16){
+            name = name.substring(0,16);
         }
+        game = new Host(mainStage,port);
+        game.init(name);
+        mainStage.setScene(game.getRenderer());
+        game.start();
+    }
+    protected static void startClient(String name,String hostName,int port){
+        if(name.length() >20){
+            name = name.substring(0,20);
+        }
+        game = new Client(mainStage,hostName,port);
         game.init(name);
         mainStage.setScene(game.getRenderer());
         game.start();
@@ -69,11 +83,12 @@ public class Main extends Application {
         game.init(name);
         mainStage.setScene(game.getRenderer());
         game.start();
+        mainStage.close();
     }
 
     public static void tryClose() {
-        System.out.println("closing");
         if (close) {
+            System.out.println("closing");
             mainStage.close();
             return;
         }

@@ -76,10 +76,6 @@ public class Cam extends Object{
         }
     }
 
-    @Override
-    public int toBuffer(byte[] buffer, int offset) {
-        return 0;
-    }
 
     @Override
     public char getId() {

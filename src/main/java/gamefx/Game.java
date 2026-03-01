@@ -1,5 +1,6 @@
 package gamefx;
 
+import gamefx.multiplayer.Host;
 import gamefx.objects.*;
 import gamefx.objects.Object;
 import gamefx.rendering.Renderer;
@@ -16,13 +17,12 @@ public class Game
     protected Stage stage;
     protected GameKey gameKey;
     protected AnimationTimer clock;
-    protected boolean stop = false;
+    protected volatile boolean stop = false;
     protected Player mainPlayer;
     protected Cam cam;
     public Player getMainPlayer() {
         return mainPlayer;
     }
-    public PlaneObj plane;
     public ArrayList<Object> objects;
 
 
@@ -59,10 +59,9 @@ public class Game
         mainPlayer = new Player(name,new double[3]);
         cam = new Cam(mainPlayer.head,new double[]{0,8,0});
         //testobjects
-        plane = new PlaneObj(new double[]{0,0,0},500);
-        objects.add(new Player("other",new double[3]));
-        objects.add(new Block(new double[]{100, 16, 0}, 32));
+        objects.add(new PlaneObj(new double[]{0,0,0},500));
         objects.add(new Block(new double[]{200, 32, 0}, 64));
+        objects.add(new Block(new double[]{100, 16, 0}, 32));
         //stressInit2(objects,1000);
 
     }
@@ -142,7 +141,8 @@ public class Game
             pos[0] += playerPos[0];
             pos[1] += playerPos[1];
             pos[2] += playerPos[2];
-            objects.add(new Block(pos,q,30));
+            Block b = new Block(pos,q,32);
+            objects.add(b);
             gameKey.unset(GameKey.Inputs.SPAWN);
         }
         int blockUP = ((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1);

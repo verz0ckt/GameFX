@@ -24,6 +24,12 @@ public class Player extends Object
         model = new PlayerModel();
     }
 
+    public Player(String name, double size) {
+        super( size);
+        this.name = name;
+        model = new PlayerModel();
+    }
+
     public void move(double[] pos){
         rot.apply(pos);
         this.pos[0]+= pos[0];
@@ -47,7 +53,7 @@ public class Player extends Object
           legl.getModel().offset(0,-0.325*size, 0);
           Block legr = new Block(Player.this,new double[]{0,0.75*size,-0.125*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
           legr.getModel().offset(0,-0.325*size, 0);
-          Block body = new Block(Player.this,new double[]{0, 1.125*size,0},Quaternion.zeroRot(),size,0.75,0.5,0.25);
+          Block body = new Block(Player.this,new double[]{0, 1.125*size,0},Quaternion.zeroRot(),size,0.75,0.25,0.5);
           Block arml = new Block(Player.this,new double[]{0, 1.375*size,0.25*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
           arml.getModel().offset(0,-0.25*size,0.125*size);
           Block armr = new Block(Player.this,new double[]{0,1.375*size,-0.25*size},Quaternion.zeroRot(),size,0.75,0.25,0.25);
@@ -73,17 +79,16 @@ public class Player extends Object
     @Override
     public String toString() {
         return "Player{" +
-                "pos=" + Arrays.toString(pos) +
+                "name='" + name + '\'' +
+                ", pos=" + Arrays.toString(pos) +
+                ", rot=" + rot +
+                ", size=" + size +
                 '}';
-    }
-
-    @Override
-    public int toBuffer(byte[] buffer, int offset) {
-        return 0;
     }
 
     @Override
     public char getId() {
         return ID;
     }
+
 }
