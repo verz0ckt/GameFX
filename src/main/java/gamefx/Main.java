@@ -83,7 +83,6 @@ public class Main extends Application {
         game.init(name);
         mainStage.setScene(game.getRenderer());
         game.start();
-        mainStage.close();
     }
 
     public static void tryClose() {
