@@ -22,7 +22,7 @@ public class Main extends Application {
     private void testStart(int mode){
         switch (mode){
             case 1->startHost("main",42069);
-            case 2->startClient("other","localhost",42069);
+            case 2->startClient("o"+(int) (1000000*Math.random()),"localhost",42069);
             default -> startGame("main");
         }
     }

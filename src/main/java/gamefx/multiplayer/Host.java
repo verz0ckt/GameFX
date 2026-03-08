@@ -141,10 +141,12 @@ public class Host extends Game {
                     }
                     ClientPlayer p = new ClientPlayer(playerNum, s);
                     p.setPlayer(new Player(otherName, new double[3]));
-                    addOtherPlayer(p);
+                    int index = objects.size();
                     objects.add(p.getPlayer());
-                    //TODO: send to other players
+                    while(!(objects.get(index) instanceof Player)){index--;}
                     sendAll(p, loginByte, (byte) p.getId());
+                    objectsToUpdate.add(addFlagToIndex(index,addFlag));
+                    addOtherPlayer(p);
                     System.out.println("finished");
                 } catch (IOException e) {
                     throw new RuntimeException(e);

@@ -30,8 +30,7 @@ public class Client extends Game {
             inputToSend = new byte[9];
             receiveBuffer = new byte[(Host.MAXPLAYERS+1)* playerUpdateSize];
             tcpBuffer = new byte[512];
-            InetSocketAddress addr = new InetSocketAddress(host,port);
-            sendPacket = new DatagramPacket(inputToSend, inputToSend.length,addr);
+            sendPacket = new DatagramPacket(inputToSend, inputToSend.length,tcpSocket.getRemoteSocketAddress());
             receivePacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);
         } catch (IOException e) {
             System.out.println("Fail");
@@ -220,6 +219,7 @@ public class Client extends Game {
                                         stream.readNBytes(tcpBuffer, 2, getBufferSizeOfNew((char) tcpBuffer[1])- 1);
                                         Object o = createObjectFromBuffer(tcpBuffer, 1);
                                         if (o instanceof Player) {
+                                            if(((Player) o).getName().matches(mainPlayer.getName()))break;
                                             otherPlayers.add((Player) o);
                                         }
                                         objects.add(o);
