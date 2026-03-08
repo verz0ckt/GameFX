@@ -1,21 +1,15 @@
 package gamefx;
 
-import gamefx.multiplayer.Host;
 import gamefx.objects.*;
 import gamefx.objects.Object;
 import gamefx.rendering.Renderer;
 import gamefx.util.Quaternion;
-import javafx.animation.AnimationTimer;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Game
 {
@@ -104,7 +98,7 @@ public class Game
         deltatime = (timeNano - oldtime) / 1_000_000_000.0;
         //TODO: finish key recognision
         int pressed = gameKey.getPressed();
-        movePlayer(getMainPlayer(),pressed,gameKey.getMovedX(),gameKey.getMovedY());
+        movePlayer(getMainPlayer(),pressed,gameKey.getMouseX(),gameKey.getMouseY());
         gameKey.resetMouse();
         processReleased();
         processTestBlocks(pressed, gameKey.getReleased());

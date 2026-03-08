@@ -14,10 +14,11 @@ public class Plane extends Drawable {
         super("plane",color,corners);
     }
 
-    private final ArrayList<double[]> proj =  new ArrayList<>();
+    private double[] x = new double[4];
+    private double[] y = new double[4];
     @Override
     public void draw(GraphicsContext g) {
-        proj.clear();
+        int index = 0;
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){
                 {
@@ -26,7 +27,16 @@ public class Plane extends Drawable {
                         imin = corners.length - 1;
                     }
                     if (corners[imin].visibility() != corners[i].visibility()) {
-                        proj.add(corners[i].getCut(corners[imin]));
+                        corners[i].getCut(corners[imin],alt);
+                        if(index >= x.length){
+                            x = new double[index+1];
+                            y = new double[index+1];
+                            //TODO: make better
+                            return;
+                        }
+                        x[index] = alt[0];
+                        y[index] = alt[1];
+                        index++;
                     }
                 }{
                     int imax = i + 1;
@@ -34,26 +44,36 @@ public class Plane extends Drawable {
                         imax = 0;
                     }
                     if (corners[imax].visibility() != corners[i].visibility()) {
-                        proj.add(corners[i].getCut(corners[imax]));
+                        corners[i].getCut(corners[imax],alt);
+                        if(index >= x.length){
+                            x = new double[index+1];
+                            y = new double[index+1];
+                            //TODO: make better
+                            return;
+                        }
+                        x[index] = alt[0];
+                        y[index] = alt[1];
+                        index++;
                     }
                 }
                 continue;
             }
-            proj.add(corners[i].getProjection());
+            double[] p = corners[i].getProjection();
+            if(index >= x.length){
+                x = new double[index+1];
+                y = new double[index+1];
+                //TODO: make better
+                return;
+            }
+            x[index] = p[0];
+            y[index] = p[1];
+            index++;
         }
-
-        double[] x = new double[proj.size()];
-        double[] y = new double[proj.size()];
-        for(int i = 0;i< proj.size();i++){
-
-            x[i] = proj.get(i)[0];
-            y[i] = proj.get(i)[1];
-        }
-        if(!proj.isEmpty()) {
+        if(index >1) {
             if(g.getFill() != paint){
                 g.setFill(paint);
             }
-            g.fillPolygon(x, y, proj.size());
+            g.fillPolygon(x, y, index);
         }
     }
 }

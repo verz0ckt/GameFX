@@ -5,7 +5,6 @@ import gamefx.GameKey;
 import gamefx.Main;
 import gamefx.objects.*;
 import gamefx.objects.Object;
-import gamefx.util.Quaternion;
 import javafx.scene.Cursor;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -148,8 +147,8 @@ public class Client extends Game {
     private DatagramPacket receivePacket;
     public void sendInput(){
         int pressed = gameKey.getPressed();
-        int mouseX = gameKey.getMovedX();
-        int mouseY = gameKey.getMovedY();
+        int mouseX = gameKey.getMouseX();
+        int mouseY = gameKey.getMouseY();
         inputToSend[0] = (byte) id;
         inputToSend[1] = (byte) (pressed>>>24);
         inputToSend[2] = (byte) (pressed>>>16);
@@ -258,12 +257,12 @@ public class Client extends Game {
     @Override
     public void stop() {
         try {
+
             tcpSocket.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         socket.close();
-        System.out.println("noo");
         super.stop();
     }
     @Override

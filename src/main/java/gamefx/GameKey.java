@@ -8,7 +8,6 @@ import javafx.scene.input.*;
 import javafx.scene.robot.Robot;
 
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
 
 
 public class GameKey implements EventHandler<InputEvent> {
@@ -72,8 +71,8 @@ public class GameKey implements EventHandler<InputEvent> {
 
     private int pressed = 0;
     private int released = 0;
-    private int movedX = 0;
-    private int movedY = 0;
+    private int mouseX = 0;
+    private int mouseY = 0;
 
     public int getReleased() {
         return released;
@@ -83,15 +82,15 @@ public class GameKey implements EventHandler<InputEvent> {
         return pressed;
     }
 
-    public int getMovedX() {
-        return movedX;
+    public int getMouseX() {
+        return mouseX;
     }
 
-    public int getMovedY() {
-        return movedY;
+    public int getMouseY() {
+        return mouseY;
     }
     public void resetMouse(){
-        movedY = movedX = 0;
+        mouseY = mouseX = 0;
     }
 
     public void unset(Inputs input){
@@ -124,10 +123,13 @@ public class GameKey implements EventHandler<InputEvent> {
                 MouseEvent mouseEvent = (MouseEvent) event;
                 double midX = scene.getWidth()/2;
                 double midY = scene.getHeight()/2;
-                movedX += (int) (mouseEvent.getSceneX()-midX);
-                movedY += (int) (mouseEvent.getSceneY()-midY);
-                robot.mouseMove(scene.getX()+scene.getWindow().getX()+midX,scene.getY()+scene.getWindow().getY()+midY);
-
+                int movedX = (int) (mouseEvent.getSceneX()-midX);
+                int movedY = (int) (mouseEvent.getSceneY()-midY);
+                if(movedX != 0 || movedY != 0) {
+                    mouseX += movedX;
+                    mouseY += movedY;
+                    robot.mouseMove(scene.getX() + scene.getWindow().getX() + midX, scene.getY() + scene.getWindow().getY() + midY);
+                }
             }
             default -> {
                 event.consume();

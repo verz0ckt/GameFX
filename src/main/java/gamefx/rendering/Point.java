@@ -97,16 +97,17 @@ public class Point {
         ren.getProjection(projection,campos, ren.getFocalLength());
         ren.adjustToScreen(projection);
     }
-
-    public double[] getCut(Point other) {
-        double[] alt = new double[2];
+    //only use while rendering
+    private static final double[] tempPoint = new double[3];
+    public void getCut(Point other,double[] alt) {
         if(this.visibility() == -1){
-            ren.getProjection(alt,ren.getCutLine(this, other,ren.getNear()), ren.getFocalLength());
+            ren.getCutLine(this, other,ren.getNear(), tempPoint);
+            ren.getProjection(alt,tempPoint, ren.getFocalLength());
         }else{
-            ren.getProjection(alt,ren.getCutLine(other,this,ren.getFar()), ren.getFocalLength());
+            ren.getCutLine(other,this,ren.getFar(), tempPoint);
+            ren.getProjection(alt,tempPoint, ren.getFocalLength());
         }
         ren.adjustToScreen(alt);
-        return alt;
     }
 
     @Override

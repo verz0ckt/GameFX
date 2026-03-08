@@ -20,6 +20,9 @@ public abstract class Drawable
     protected String name;
     protected Renderer ren;
     protected Paint paint;
+
+    //only use while rendering
+    protected static double[] alt = new double[2];
     public Drawable(String name, Paint paint, Point[] corners){
        this.corners = corners;
        this.name = name;

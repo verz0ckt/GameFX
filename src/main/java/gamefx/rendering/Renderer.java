@@ -1,9 +1,6 @@
 package gamefx.rendering;
 
 import gamefx.Game;
-import gamefx.Main;
-import gamefx.multiplayer.Client;
-import gamefx.multiplayer.Host;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
@@ -128,14 +125,14 @@ public class Renderer extends Scene {
         v[0] = v[0]* sizeMultWidth +midX;
         v[1] = v[1]* sizeMultHeight +midY;
     }
-    public double[] getCutLine(Point p1, Point p2,double cut) {
+    public void getCutLine(Point p1, Point p2,double cut,double[] out) {
         double[] cord1 = p1.getCampos();
         double[] cord2 = p2.getCampos();
 
         double t = (cut - cord1[0]) / (cord2[0] - cord1[0]);
-        double z = cord1[2] + t * (cord2[2] - cord1[2]);
-        double y = cord1[1] + t * (cord2[1] - cord1[1]);
-        return new double[]{cut,y, z};
+        out[0] = cut;
+        out[1] = cord1[1] + t * (cord2[1] - cord1[1]);
+        out[2] = cord1[2] + t * (cord2[2] - cord1[2]);
     }
     public void setMid() {
         midX = getWidth()/2;

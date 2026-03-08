@@ -52,7 +52,7 @@ public class ClientPlayer {
         isWriting.set(false);
         return true;
     }
-
+    //logoutSystem and TCP read
 
     public char getId() {
         return id;
