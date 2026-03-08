@@ -7,6 +7,8 @@ import gamefx.objects.Block;
 import gamefx.objects.Object;
 import gamefx.objects.Player;
 import gamefx.util.Quaternion;
+import javafx.scene.Cursor;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -29,15 +31,19 @@ public class Host extends Game {
     private ServerSocket tcpSocket;
     private DatagramSocket socket;
     int[] otherPressed;
+    int[] otherMouseX;
+    int[] otherMouseY;
     public Host(Stage stage, int port) {
         super(stage);
         slots = new Semaphore(MAXPLAYERS);
         otherPlayers = new ClientPlayer[MAXPLAYERS];
         playerNum = 0;
         otherPressed = new int[MAXPLAYERS];
+        otherMouseX = new int[MAXPLAYERS];
+        otherMouseY = new int[MAXPLAYERS];
         sendBuffer = new byte[(MAXPLAYERS+1)* playerUpdateSize];
         sendPacket = new DatagramPacket(sendBuffer,sendBuffer.length);
-        receiveBuffer = new byte[9];
+        receiveBuffer = new byte[13];
         receivePacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);
         tcpBuffer = new byte[512];
         objectsToUpdate = new ArrayList<>();
@@ -49,26 +55,6 @@ public class Host extends Game {
             Main.tryClose();
         }
         assert tcpSocket != null;
-    }
-    private void movePlayer(ClientPlayer p){
-        int pressed = otherPressed[p.getId()];
-        Player player = p.getPlayer();
-        double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
-        double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
-        if ((x != 0) || (z != 0)) {
-            player.move(x, 0, z);
-        }
-        int rotz = (((pressed >>> GameKey.Inputs.UP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.DOWN.ordinal()) & 1));
-        int roty = (((pressed >>> GameKey.Inputs.TRIGHT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.TLEFT.ordinal()) & 1));
-        if (roty != 0) {
-            player.rotateAngle(deltatime, 0, roty, 0);
-        }
-        if (rotz != 0) {
-            Quaternion rot = player.head.getRot();
-            rot.multiply(Quaternion.fromAngle(deltatime, 0, 0, rotz));
-            rot.setW(Math.max(rot.getW(), 0.7071067812));
-            rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
-        }
     }
 
     public boolean addOtherPlayer(ClientPlayer player){
@@ -159,6 +145,8 @@ public class Host extends Game {
                     socket.receive(receivePacket);
                     int id = receiveBuffer[0];
                     otherPressed[id] = (((int)receiveBuffer[1] & 0xff)<<24)+(((int)receiveBuffer[2] & 0xff)<<16)+(((int)receiveBuffer[3] & 0xff)<<8)+((int)receiveBuffer[4] & 0xff);
+                    otherMouseX[id] = (((int)receiveBuffer[5] & 0xff)<<24)+(((int)receiveBuffer[6] & 0xff)<<16)+(((int)receiveBuffer[7] & 0xff)<<8)+((int)receiveBuffer[8] & 0xff);
+                    otherMouseY[id] = (((int)receiveBuffer[9] & 0xff)<<24)+(((int)receiveBuffer[10] & 0xff)<<16)+(((int)receiveBuffer[11] & 0xff)<<8)+((int)receiveBuffer[12] & 0xff);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -257,40 +245,47 @@ public class Host extends Game {
     private long lastUpdateTime;
     @Override
     public void update(){
-        long oldtime = timeNano;
-        timeNano = System.nanoTime();
-        deltatime = (timeNano - oldtime) / 1_000_000_000.0;
-        //TODO: finish key recognision
-        int pressed = gameKey.getPressed();
-        int released = gameKey.getReleased();
-        {
-            double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
-            double y = 0;
-            double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
-            if ((x != 0) || (y != 0) || (z != 0)) {
-                getMainPlayer().move(x, y, z);
-            }
-        }{
-            int rotz = (((pressed >>> GameKey.Inputs.UP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.DOWN.ordinal()) & 1));
-            int roty = (((pressed >>> GameKey.Inputs.TRIGHT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.TLEFT.ordinal()) & 1));
-            if (roty != 0) {
-                getMainPlayer().rotateAngle(deltatime, 0, roty, 0);
-            }
-            if (rotz != 0) {
-                Quaternion rot = getMainPlayer().head.getRot();
-                rot.multiply(Quaternion.fromAngle(deltatime, 0, 0, rotz));
-                rot.setW(Math.max(rot.getW(), 0.7071067812));
-                rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
-            }
+        super.update();
+
+        for(int i = 0;i<playerNum;i++){
+            movePlayer(otherPlayers[i].getPlayer(),otherPressed[i],otherMouseX[i],otherMouseY[i]);
+            otherMouseX[i] = 0;
+            otherMouseY[i] = 0;
         }
-        if((released&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
-            toggleFullscreen();
-            gameKey.unset(GameKey.Inputs.FULLSCREEN);
+        if(System.nanoTime()-lastUpdateTime >= 20_000_000){
+            if(playerNum > 0) {
+                sendPlayer();
+                sendObjectUpdate();
+            }
+            lastUpdateTime += 20_000_000;
         }
-        if((released&1<< GameKey.Inputs.PERSPECTIVE.ordinal()) != 0){
-            System.out.println(cam.togglePerspective());
-            gameKey.unset(GameKey.Inputs.PERSPECTIVE);
+    }
+
+    @Override
+    public void stop() {
+        try {
+            //kick all players
+            tcpSocket.close();
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        super.stop();
+    }
+
+    @Override
+    protected void handlePause() {
+        if((gameKey.getReleased()&1<< GameKey.Inputs.PAUSE.ordinal()) != 0){
+            gameKey.unset(GameKey.Inputs.PAUSE);
+            gameKey.removeHandlers();
+            renderer.addEventFilter(KeyEvent.KEY_RELEASED,pauseHandler);
+            renderer.setCursor(Cursor.DEFAULT);
+
+        }
+    }
+
+    @Override
+    protected void processTestBlocks(int pressed, int released) {
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
             double[] pos = new double[]{200,0,0};
             Quaternion q = mainPlayer.getRot().copy();
@@ -309,7 +304,6 @@ public class Host extends Game {
             objectsToUpdate.add(addFlagToIndex(index,addFlag));
             gameKey.unset(GameKey.Inputs.SPAWN);
         }
-        //TODO: remove{
         int blockUP = ((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1);
         if(blockUP != 0){
             int index = objects.size()-1;
@@ -335,30 +329,5 @@ public class Host extends Game {
             last.getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
             objectsToUpdate.add(addFlagToIndex(index,updateFlag));
         }
-        //} only for testing
-
-        for(int i = 0;i<playerNum;i++){
-            movePlayer(otherPlayers[i]);
-        }
-        if(System.nanoTime()-lastUpdateTime >= 20_000_000){
-            if(playerNum > 0) {
-                sendPlayer();
-                sendObjectUpdate();
-            }
-            lastUpdateTime += 20_000_000;
-        }
-    }
-
-    @Override
-    public void stop() {
-
-        try {
-            //kick all players
-            tcpSocket.close();
-            socket.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        super.stop();
     }
 }

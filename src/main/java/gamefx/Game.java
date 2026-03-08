@@ -6,6 +6,12 @@ import gamefx.objects.Object;
 import gamefx.rendering.Renderer;
 import gamefx.util.Quaternion;
 import javafx.animation.AnimationTimer;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -16,7 +22,7 @@ public class Game
     protected Renderer renderer;
     protected Stage stage;
     protected GameKey gameKey;
-    protected AnimationTimer clock;
+    protected Clock clock;
     protected volatile boolean stop = false;
     protected Player mainPlayer;
     protected Cam cam;
@@ -36,16 +42,7 @@ public class Game
         renderer = new Renderer(this);
         //input
         gameKey = new GameKey(renderer);
-        clock = new AnimationTimer() {
-            @Override
-            public void handle(long l) {
-                update();
-                renderer.repaint();
-                if(stop){
-                    Game.this.stop();
-                }
-            }
-        };
+        clock = new Clock(this);
         //objects
         objects = new ArrayList<>();
     }
@@ -54,6 +51,9 @@ public class Game
             setStop();
             Main.setClose();
             windowEvent.consume();
+            if(!clock.isRunning()){
+                stop();
+            }
         });
         gameKey.addHandlers();
         mainPlayer = new Player(name,new double[3]);
@@ -88,6 +88,7 @@ public class Game
 
 
     public void start(){
+        renderer.setCursor(Cursor.NONE);
         clock.start();
     }
 
@@ -103,35 +104,44 @@ public class Game
         deltatime = (timeNano - oldtime) / 1_000_000_000.0;
         //TODO: finish key recognision
         int pressed = gameKey.getPressed();
-        int released = gameKey.getReleased();
-        {
-            double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
-            double y = 0;
-            double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
-            if ((x != 0) || (y != 0) || (z != 0)) {
-                getMainPlayer().move(x, y, z);
-            }
-        }{
-            int rotz = (((pressed >>> GameKey.Inputs.UP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.DOWN.ordinal()) & 1));
-            int roty = (((pressed >>> GameKey.Inputs.TRIGHT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.TLEFT.ordinal()) & 1));
-            if (roty != 0) {
-                getMainPlayer().rotateAngle(deltatime, 0, roty, 0);
-            }
-            if (rotz != 0) {
-                Quaternion rot = getMainPlayer().head.getRot();
-                rot.multiply(Quaternion.fromAngle(deltatime, 0, 0, rotz));
-                rot.setW(Math.max(rot.getW(), 0.7071067812));
-                rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
-            }
+        movePlayer(getMainPlayer(),pressed,gameKey.getMovedX(),gameKey.getMovedY());
+        gameKey.resetMouse();
+        processReleased();
+        processTestBlocks(pressed, gameKey.getReleased());
+        handlePause();
+    }
+    public void stop(){
+        clock.stop();
+        System.out.println("Stopped");
+        stage.setScene(null);
+        Main.tryClose();
+    }
+    protected void movePlayer(Player player,int pressed,int mX,int mY){
+        double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
+        double y = 0;
+        double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
+        if ((x != 0) || (y != 0) || (z != 0)) {
+            player.move(x, y, z);
         }
-        if((released&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
+        player.rotateAngle(mX*0.001,0,1,0);
+        if (mY != 0) {
+            Quaternion rot = player.head.getRot();
+            rot.multiply(Quaternion.fromAngle(mY*0.001, 0, 0, -1));
+            rot.setW(Math.max(rot.getW(), 0.7071067812));
+            rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
+        }
+    }
+    protected void processReleased(){
+        if((gameKey.getReleased()&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
             toggleFullscreen();
             gameKey.unset(GameKey.Inputs.FULLSCREEN);
         }
-        if((released&1<< GameKey.Inputs.PERSPECTIVE.ordinal()) != 0){
+        if((gameKey.getReleased()&1<< GameKey.Inputs.PERSPECTIVE.ordinal()) != 0){
             System.out.println(cam.togglePerspective());
             gameKey.unset(GameKey.Inputs.PERSPECTIVE);
         }
+    }
+    protected void processTestBlocks(int pressed,int released){
         if((released&1<< GameKey.Inputs.SPAWN.ordinal()) != 0){
             double[] pos = new double[]{200,0,0};
             Quaternion q = mainPlayer.getRot().copy();
@@ -156,14 +166,30 @@ public class Game
         if(blockSide != 0){
             objects.getLast().getRot().multiplyGlobal(Quaternion.fromEuler(deltatime,0,blockSide,0));
         }
+    }
+    protected final EventHandler<KeyEvent> pauseHandler = new EventHandler<>() {
+        @Override
+        public void handle(KeyEvent e) {
+            if (GameKey.Inputs.PAUSE == gameKey.getInput(e.getCode())) {
+                renderer.removeEventFilter(KeyEvent.KEY_RELEASED, this);
+                e.consume();
+                gameKey.addHandlers();
+                clock.start();
+                renderer.setCursor(Cursor.NONE);
+            }
+        }
+    };
+    protected void handlePause(){
+        if((gameKey.getReleased()&1<< GameKey.Inputs.PAUSE.ordinal()) != 0){
+            gameKey.unset(GameKey.Inputs.PAUSE);
+            gameKey.removeHandlers();
+            renderer.addEventFilter(KeyEvent.KEY_RELEASED,pauseHandler);
+            clock.stop();
+            renderer.setCursor(Cursor.DEFAULT);
 
+        }
     }
-    public void stop(){
-        clock.stop();
-        System.out.println("Stopped");
-        stage.setScene(null);
-        Main.tryClose();
-    }
+
     public void setStop(){
         stop = true;
     }

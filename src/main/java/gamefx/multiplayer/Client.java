@@ -6,6 +6,8 @@ import gamefx.Main;
 import gamefx.objects.*;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
+import javafx.scene.Cursor;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,7 +29,7 @@ public class Client extends Game {
             tcpSocket = new Socket(host,port);
             tcpSocket.setKeepAlive(true);
             socket = new DatagramSocket(tcpSocket.getLocalSocketAddress());//(port)
-            inputToSend = new byte[9];
+            inputToSend = new byte[13];
             receiveBuffer = new byte[(Host.MAXPLAYERS+1)* playerUpdateSize];
             tcpBuffer = new byte[512];
             sendPacket = new DatagramPacket(inputToSend, inputToSend.length,tcpSocket.getRemoteSocketAddress());
@@ -146,16 +148,22 @@ public class Client extends Game {
     private DatagramPacket receivePacket;
     public void sendInput(){
         int pressed = gameKey.getPressed();
-        int released = gameKey.getReleased();
+        int mouseX = gameKey.getMovedX();
+        int mouseY = gameKey.getMovedY();
         inputToSend[0] = (byte) id;
         inputToSend[1] = (byte) (pressed>>>24);
         inputToSend[2] = (byte) (pressed>>>16);
         inputToSend[3] = (byte) (pressed>>>8);
         inputToSend[4] = (byte) (pressed);
-        inputToSend[5] = (byte) (released>>>24);
-        inputToSend[6] = (byte) (released>>>16);
-        inputToSend[7] = (byte) (released>>>8);
-        inputToSend[8] = (byte) (released);
+        inputToSend[5] = (byte) (mouseX>>>24);
+        inputToSend[6] = (byte) (mouseX>>>16);
+        inputToSend[7] = (byte) (mouseX>>>8);
+        inputToSend[8] = (byte) (mouseX);
+        inputToSend[9] = (byte) (mouseY>>>24);
+        inputToSend[10] = (byte) (mouseY>>>16);
+        inputToSend[11] = (byte) (mouseY>>>8);
+        inputToSend[12] = (byte) (mouseY);
+        gameKey.resetMouse();
         try {
             socket.send(sendPacket);
         } catch (IOException e) {
@@ -183,18 +191,10 @@ public class Client extends Game {
             }
             receiveBufferNew = false;
         }
-
-        movementPrediction();
-
-        int released = gameKey.getReleased();
-        if((released&1<< GameKey.Inputs.FULLSCREEN.ordinal()) != 0){
-            toggleFullscreen();
-            gameKey.unset(GameKey.Inputs.FULLSCREEN);
-        }
-        if((released&1<< GameKey.Inputs.PERSPECTIVE.ordinal()) != 0){
-            System.out.println(cam.togglePerspective());
-            gameKey.unset(GameKey.Inputs.PERSPECTIVE);
-        }
+        //prediction
+        //movePlayer(getMainPlayer(), gameKey.getPressed(),0,0);
+        processReleased();
+        handlePause();
     }
     private void startTCPFetch(){
         InputStream stream;
@@ -253,29 +253,6 @@ public class Client extends Game {
             }
         }).start();
     }
-    private void movementPrediction(){
-        int pressed = gameKey.getPressed();
-        {
-            double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
-            double y = 0;
-            double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
-            if ((x != 0) || (y != 0) || (z != 0)) {
-                getMainPlayer().move(x, y, z);
-            }
-        }{
-            int rotz = (((pressed >>> GameKey.Inputs.UP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.DOWN.ordinal()) & 1));
-            int roty = (((pressed >>> GameKey.Inputs.TRIGHT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.TLEFT.ordinal()) & 1));
-            if (roty != 0) {
-                getMainPlayer().rotateAngle(deltatime, 0, roty, 0);
-            }
-            if (rotz != 0) {
-                Quaternion rot = getMainPlayer().head.getRot();
-                rot.multiply(Quaternion.fromAngle(deltatime, 0, 0, rotz));
-                rot.setW(Math.max(rot.getW(), 0.7071067812));
-                rot.setK(Math.max(Math.min(rot.getK(), 0.7071067812), -0.7071067812));
-            }
-        }
-    }
 
 
     @Override
@@ -288,5 +265,15 @@ public class Client extends Game {
         socket.close();
         System.out.println("noo");
         super.stop();
+    }
+    @Override
+    protected void handlePause() {
+        if((gameKey.getReleased()&1<< GameKey.Inputs.PAUSE.ordinal()) != 0){
+            gameKey.unset(GameKey.Inputs.PAUSE);
+            gameKey.removeHandlers();
+            renderer.addEventFilter(KeyEvent.KEY_RELEASED,pauseHandler);
+            renderer.setCursor(Cursor.DEFAULT);
+
+        }
     }
 }
