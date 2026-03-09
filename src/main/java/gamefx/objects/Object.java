@@ -7,8 +7,8 @@ import gamefx.util.Quaternion;
 import gamefx.rendering.Drawable;
 import gamefx.rendering.Point;
 import gamefx.rendering.Renderer;
-import javafx.scene.canvas.GraphicsContext;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public abstract class Object {
@@ -176,7 +176,7 @@ public abstract class Object {
         public Object getObject(){
             return Object.this;
         }
-        public void draw(GraphicsContext gc){
+        public void draw(ByteBuffer buffer){
              if(points != null || children != null) {
                  renderingQuaterion.replaceWith(rot);
                  if (parent == null) {
@@ -204,12 +204,12 @@ public abstract class Object {
                  }
                  if(drawable != null){
                     for (Drawable d : drawable) {
-                       d.draw(gc);
+                       d.draw(buffer);
                     }
                  }
                  if (children != null) {
                      for (Object c : children) {
-                         c.getModel().draw(gc);
+                         c.getModel().draw(buffer);
                      }
                  }
              }

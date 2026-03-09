@@ -1,8 +1,9 @@
 package gamefx.rendering;
 
 
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import java.nio.ByteBuffer;
 
 public class Line extends Drawable
 {
@@ -17,7 +18,7 @@ public class Line extends Drawable
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void draw(ByteBuffer buffer) {
         double x1 = corners[0].getProjection()[0];
         double y1 = corners[0].getProjection()[1];
         double x2 = corners[1].getProjection()[0];
@@ -36,8 +37,14 @@ public class Line extends Drawable
             x2 = alt[0];
             y2 = alt[1];
         }
-        gc.setStroke(paint);
-        gc.strokeLine(x1,y1,x2,y2);
+        int dx = (int) Math.abs(x1 - x2);
+        int dy = (int) Math.abs(y1 - y2);
+        int m = dy/dx;
+        for(int i = 0;i<dx;i++){
+            //buffer.put();
+        }
+        //gc.setStroke(paint);
+        //gc.strokeLine(x1,y1,x2,y2);
     }
 
 }

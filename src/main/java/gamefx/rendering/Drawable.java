@@ -1,10 +1,10 @@
 package gamefx.rendering;
 
 
-import gamefx.Game;
 import gamefx.Main;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
+
+import java.nio.ByteBuffer;
 
 public abstract class Drawable
 {
@@ -29,5 +29,5 @@ public abstract class Drawable
        this.paint = paint;
        ren = Main.getGame().getRenderer();
     }
-    public abstract void draw( GraphicsContext gc);
+    public abstract void draw(ByteBuffer buffer);
 }

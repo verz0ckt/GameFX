@@ -1,9 +1,9 @@
 package gamefx.rendering;
 
 
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
+
+import java.nio.ByteBuffer;
 
 public class Plane extends Drawable {
     public Plane(Point... corners) {
@@ -17,7 +17,7 @@ public class Plane extends Drawable {
     private double[] x = new double[4];
     private double[] y = new double[4];
     @Override
-    public void draw(GraphicsContext g) {
+    public void draw(ByteBuffer buffer) {
         int index = 0;
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){
@@ -70,10 +70,11 @@ public class Plane extends Drawable {
             index++;
         }
         if(index >1) {
-            if(g.getFill() != paint){
-                g.setFill(paint);
+            /*if(gc.getFill() != paint){
+                gc.setFill(paint);
             }
-            g.fillPolygon(x, y, index);
+            gc.fillPolygon(x, y, index);
+             */
         }
     }
 }

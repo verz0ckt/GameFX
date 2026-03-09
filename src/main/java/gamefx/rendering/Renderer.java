@@ -4,17 +4,23 @@ import gamefx.Game;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class Renderer extends Scene {
-    private final Canvas canvas;
+    private final WritableImage image;
+    private final PixelBuffer<ByteBuffer> pixelBuffer;
+    private final ByteBuffer buffer;
+    private final ByteBuffer zbuffer;
     private double focalLength = -850;
 	private double near = 1;
     private double far = 500;
@@ -27,23 +33,28 @@ public class Renderer extends Scene {
     private double sizeMultHeight;
     private double sizeMultWidth;
 
-    public Canvas getCanvas() {
-        return canvas;
+    public WritableImage getImage() {
+        return image;
     }
 
     public Renderer(Game game) {
         super(new StackPane());
         this.game = game;
         StackPane root = (StackPane) getRoot();
-        canvas = new Canvas();
-        canvas.widthProperty().bind(
-                root.widthProperty());
-        canvas.heightProperty().bind(
-                root.heightProperty());
-        root.getChildren().add(canvas);
-        canvas.getGraphicsContext2D().setImageSmoothing(false);
         maxHeight = Screen.getPrimary().getBounds().getHeight();
         maxWidth = Screen.getPrimary().getBounds().getWidth();
+        int size = ((int)maxHeight)*((int)maxWidth);
+        buffer = ByteBuffer.allocateDirect(size*4);
+        pixelBuffer = new PixelBuffer<>((int)maxWidth,(int)maxHeight,buffer, PixelFormat.getByteBgraPreInstance());
+        zbuffer = ByteBuffer.allocateDirect(size);
+        image = new WritableImage(pixelBuffer);
+        ImageView view = new ImageView(image);
+        view.fitWidthProperty().bind(
+                root.widthProperty());
+        view.fitHeightProperty().bind(
+                root.heightProperty());
+        root.getChildren().add(view);
+        view.setSmooth(false);
     }
     //projection
     private final Quaternion camRot = Quaternion.zeroRot();
@@ -75,9 +86,13 @@ public class Renderer extends Scene {
     }
 
     public void repaint() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
-        setMid();
+        for (int i = 0; i < buffer.capacity(); i += 4) {
+            buffer.put(i, (byte) 0);
+            buffer.put(i + 1, (byte) 0);
+            buffer.put(i + 2, (byte) 0);
+            buffer.put(i + 3, (byte) 255);
+        }
+
         game.getCam().update();
         camRot.conjugateOf(game.getCam().getRenderingQuaternion());
         camRot.tryNormalize();
@@ -86,15 +101,16 @@ public class Renderer extends Scene {
         camPos[0] = camOffset[0];
         camPos[1] = camOffset[1];
         camPos[2] = camOffset[2];
-        if(game.getClass() == Game.class) {
+        if (game.getClass() == Game.class) {
             sortObjects(game.objects);
         }
         for (Object o : game.objects) {
-            o.getModel().draw(gc);
+            o.getModel().draw(buffer);
         }
-        if(game.getCam().getPerspective() >1){
-            game.getMainPlayer().getModel().draw(gc);
+        if (game.getCam().getPerspective() > 1) {
+            game.getMainPlayer().getModel().draw(buffer);
         }
+        pixelBuffer.updateBuffer(_ -> null);
     }
     @Deprecated
     public double distanceFromViewPortSqared(double[] point) {
