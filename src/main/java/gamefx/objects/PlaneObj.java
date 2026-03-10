@@ -6,7 +6,6 @@ import gamefx.rendering.Drawable;
 import gamefx.rendering.Line;
 import gamefx.rendering.Plane;
 import gamefx.rendering.Point;
-import javafx.scene.paint.Color;
 
 public class PlaneObj extends Object{
 
@@ -45,7 +44,7 @@ public class PlaneObj extends Object{
             points[(imax + 1) * 4 + 1] = new Point(getObject(), -size, 0, size);
             points[(imax + 1) * 4 + 2] = new Point(getObject(), -size, 0, -size);
             points[(imax + 1) * 4 + 3] = new Point(getObject(), size, 0, -size);
-            drawable[0] = new Plane(Color.HOTPINK, points[(imax + 1) * 4], points[(imax + 1) * 4 + 1], points[(imax + 1) * 4 + 2], points[(imax + 1) * 4 + 3]);
+            drawable[0] = new Plane(0xffff69b4, points[(imax + 1) * 4], points[(imax + 1) * 4 + 1], points[(imax + 1) * 4 + 2], points[(imax + 1) * 4 + 3]);
 
         }
     }

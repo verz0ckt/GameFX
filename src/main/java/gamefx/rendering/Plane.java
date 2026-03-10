@@ -1,23 +1,22 @@
 package gamefx.rendering;
 
 
-import javafx.scene.paint.Color;
 
-import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class Plane extends Drawable {
     public Plane(Point... corners) {
-        super("plane",Color.LIGHTSKYBLUE,corners );
+        super("plane",0xff87cefa,corners );
     }
 
-    public Plane(Color color, Point... corners) {
+    public Plane(int color, Point... corners) {
         super("plane",color,corners);
     }
 
     private double[] x = new double[4];
     private double[] y = new double[4];
     @Override
-    public void draw(ByteBuffer buffer) {
+    public void draw(IntBuffer buffer) {
         int index = 0;
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){

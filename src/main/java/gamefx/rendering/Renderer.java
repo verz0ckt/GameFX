@@ -4,23 +4,21 @@ import gamefx.Game;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class Renderer extends Scene {
     private final WritableImage image;
-    private final PixelBuffer<ByteBuffer> pixelBuffer;
-    private final ByteBuffer buffer;
+    private final PixelBuffer<IntBuffer> pixelBuffer;
+    private final IntBuffer buffer;
     private final ByteBuffer zbuffer;
     private double focalLength = -850;
 	private double near = 1;
@@ -45,8 +43,10 @@ public class Renderer extends Scene {
         midX = (double) maxWidth /2;
         midY = (double) maxHeight /2;
         int size = maxHeight*maxWidth;
-        buffer = ByteBuffer.allocateDirect(size*4);
-        pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,buffer, PixelFormat.getByteBgraPreInstance());
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(size*4);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        buffer = byteBuffer.asIntBuffer();
+        pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,buffer, PixelFormat.getIntArgbPreInstance());
         zbuffer = ByteBuffer.allocateDirect(size);
         image = new WritableImage(pixelBuffer);
         ImageView view = new ImageView(image);
@@ -87,11 +87,8 @@ public class Renderer extends Scene {
     }
 
     public void repaint() {
-        for (int i = 0; i < buffer.capacity(); i += 4) {
-            buffer.put(i, (byte) 255);
-            buffer.put(i + 1, (byte) 255);
-            buffer.put(i + 2, (byte) 255);
-            buffer.put(i + 3, (byte) 255);
+        for (int i = 0; i < buffer.capacity(); i ++) {
+            buffer.put(i, 0xFFDDDDDD);
         }
 
         game.getCam().update();

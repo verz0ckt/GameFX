@@ -8,7 +8,7 @@ import gamefx.rendering.Drawable;
 import gamefx.rendering.Point;
 import gamefx.rendering.Renderer;
 
-import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 
 public abstract class Object {
@@ -176,7 +176,7 @@ public abstract class Object {
         public Object getObject(){
             return Object.this;
         }
-        public void draw(ByteBuffer buffer){
+        public void draw(IntBuffer buffer){
              if(points != null || children != null) {
                  renderingQuaterion.replaceWith(rot);
                  if (parent == null) {

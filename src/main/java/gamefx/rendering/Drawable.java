@@ -4,7 +4,7 @@ package gamefx.rendering;
 import gamefx.Main;
 import javafx.scene.paint.Paint;
 
-import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public abstract class Drawable
 {
@@ -19,15 +19,15 @@ public abstract class Drawable
 
     protected String name;
     protected Renderer ren;
-    protected Paint paint;
+    protected int color;
 
     //only use while rendering
     protected static double[] alt = new double[2];
-    public Drawable(String name, Paint paint, Point[] corners){
+    public Drawable(String name, int color, Point[] corners){
        this.corners = corners;
        this.name = name;
-       this.paint = paint;
+       this.color = color;
        ren = Main.getGame().getRenderer();
     }
-    public abstract void draw(ByteBuffer buffer);
+    public abstract void draw(IntBuffer buffer);
 }
