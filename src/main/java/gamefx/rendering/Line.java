@@ -37,14 +37,40 @@ public class Line extends Drawable
             x2 = alt[0];
             y2 = alt[1];
         }
-        int dx = (int) Math.abs(x1 - x2);
-        int dy = (int) Math.abs(y1 - y2);
-        int m = dy/dx;
-        for(int i = 0;i<dx;i++){
-            //buffer.put();
-        }
+
         //gc.setStroke(paint);
         //gc.strokeLine(x1,y1,x2,y2);
+    }
+    private void drawLine(int v1,int u1,int v2,int u2,ByteBuffer buffer){
+        int dV = Math.abs(v2-v1);
+        int dU = Math.abs(u2-u1);
+        int v = (int) v1;//v1
+        int u = (int) u1;//v2
+        if(v1> v2){
+            v = (int) v2;
+            u = (int) u2;
+        }
+        //fix direction
+        double m = 0;
+        if(dV != 0){
+            m = (double) dU / dV;
+        }
+
+        double error = 0;
+        for(int i = 0; i< dV; i++){
+            Color col = (Color)paint;
+            v += 1;
+            error += m;
+            if(error >= 1){
+                error--;
+                u +=1;
+            }
+            int pos = (v+u*ren.maxWidth)*4;
+            buffer.put(pos++,(byte) (col.getBlue()*255));
+            buffer.put(pos++,(byte) (col.getGreen()*255));
+            buffer.put(pos++,(byte) (col.getRed()*255));
+            buffer.put(pos,(byte) (col.getOpacity()*255));
+        }
     }
 
 }

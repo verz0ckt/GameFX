@@ -8,6 +8,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 
 import java.nio.ByteBuffer;
@@ -28,10 +29,8 @@ public class Renderer extends Scene {
 
     private double midX;
     private double midY;
-    private double maxHeight;
-    private double maxWidth;
-    private double sizeMultHeight;
-    private double sizeMultWidth;
+    public final int maxHeight;
+    public final int maxWidth;
 
     public WritableImage getImage() {
         return image;
@@ -41,11 +40,13 @@ public class Renderer extends Scene {
         super(new StackPane());
         this.game = game;
         StackPane root = (StackPane) getRoot();
-        maxHeight = Screen.getPrimary().getBounds().getHeight();
-        maxWidth = Screen.getPrimary().getBounds().getWidth();
-        int size = ((int)maxHeight)*((int)maxWidth);
+        maxHeight = (int) Screen.getPrimary().getBounds().getHeight();
+        maxWidth = (int) Screen.getPrimary().getBounds().getWidth();
+        midX = (double) maxWidth /2;
+        midY = (double) maxHeight /2;
+        int size = maxHeight*maxWidth;
         buffer = ByteBuffer.allocateDirect(size*4);
-        pixelBuffer = new PixelBuffer<>((int)maxWidth,(int)maxHeight,buffer, PixelFormat.getByteBgraPreInstance());
+        pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,buffer, PixelFormat.getByteBgraPreInstance());
         zbuffer = ByteBuffer.allocateDirect(size);
         image = new WritableImage(pixelBuffer);
         ImageView view = new ImageView(image);
@@ -87,9 +88,9 @@ public class Renderer extends Scene {
 
     public void repaint() {
         for (int i = 0; i < buffer.capacity(); i += 4) {
-            buffer.put(i, (byte) 0);
-            buffer.put(i + 1, (byte) 0);
-            buffer.put(i + 2, (byte) 0);
+            buffer.put(i, (byte) 255);
+            buffer.put(i + 1, (byte) 255);
+            buffer.put(i + 2, (byte) 255);
             buffer.put(i + 3, (byte) 255);
         }
 
@@ -134,12 +135,12 @@ public class Renderer extends Scene {
         point[2] -= camPos[2];
     }
     public void getProjection(double[] proj,double[] point,double fov){
-        proj[0] = fov/point[0]*point[2];
-        proj[1] = fov/point[0]*point[1];
+        proj[0] = fov/point[0]*point[2];//x
+        proj[1] = fov/point[0]*point[1];//y
     }
     public void adjustToScreen(double[] v){
-        v[0] = v[0]* sizeMultWidth +midX;
-        v[1] = v[1]* sizeMultHeight +midY;
+        v[0] += midX;
+        v[1] += midY;
     }
     public void getCutLine(Point p1, Point p2,double cut,double[] out) {
         double[] cord1 = p1.getCampos();
@@ -149,11 +150,5 @@ public class Renderer extends Scene {
         out[0] = cut;
         out[1] = cord1[1] + t * (cord2[1] - cord1[1]);
         out[2] = cord1[2] + t * (cord2[2] - cord1[2]);
-    }
-    public void setMid() {
-        midX = getWidth()/2;
-        midY = getHeight()/2;
-        sizeMultHeight = getHeight()/maxHeight;
-        sizeMultWidth = getWidth()/maxWidth;
     }
 }

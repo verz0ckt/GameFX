@@ -53,7 +53,7 @@ public class Game
         mainPlayer = new Player(name,new double[3]);
         cam = new Cam(mainPlayer.head,new double[]{0,8,0});
         //testobjects
-        objects.add(new PlaneObj(new double[]{0,0,0},500));
+        //objects.add(new PlaneObj(new double[]{0,0,0},500));
         objects.add(new Block(new double[]{200, 32, 0}, 64));
         objects.add(new Block(new double[]{100, 16, 0}, 32));
         //stressInit2(objects,1000);
