@@ -54,7 +54,7 @@ public class Line extends Drawable
             dy <<= 1;
             int error = dy-dx;
             dx = dx<<1;
-            if(x >= ren.maxWidth && x < 0 && y >= buffer.capacity() && y < 0) {
+            if(x < ren.maxWidth && x >= 0 && y < buffer.capacity() && y >= 0) {
                 int pos = x+y;
                 buffer.put(pos,color);
             }
@@ -90,7 +90,7 @@ public class Line extends Drawable
             dx <<= 1;
             int error = dx-dy;
             dy <<= 1;
-            if(x >= ren.maxWidth && x < 0 && y >= buffer.capacity() && y < 0) {
+            if(x < ren.maxWidth && x >= 0 && y < buffer.capacity() && y >= 0) {
                 int pos = x+y;
                 buffer.put(pos,color);
             }

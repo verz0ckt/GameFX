@@ -80,7 +80,7 @@ public class Plane extends Drawable {
                     if(i >= ren.maxWidth || i<0 || j >= ren.maxHeight || j < 0){
                         continue;
                     }
-                    buffer.put(i+j*ren.maxWidth,0xFFFF0000);
+                    buffer.put(i+j*ren.maxWidth,color);
                 }
             }
 
