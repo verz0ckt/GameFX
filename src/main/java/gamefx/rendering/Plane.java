@@ -3,6 +3,7 @@ package gamefx.rendering;
 
 
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 public class Plane extends Drawable {
     public Plane(Point... corners) {
@@ -18,6 +19,7 @@ public class Plane extends Drawable {
     @Override
     public void draw(IntBuffer buffer) {
         int index = 0;
+
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){
                 {
@@ -69,11 +71,39 @@ public class Plane extends Drawable {
             index++;
         }
         if(index >1) {
-            /*if(gc.getFill() != paint){
-                gc.setFill(paint);
+            int topX = (int) findMin(x,index);
+            int topY = (int) findMin(y,index);
+            int bottomX = (int) findMax(x,index);
+            int bottomY = (int) findMax(y,index);
+            for(int i = topX; i <= bottomX; i++){
+                for(int j = topY; j <= bottomY; j++){
+                    if(i >= ren.maxWidth || i<0 || j >= ren.maxHeight || j < 0){
+                        continue;
+                    }
+                    buffer.put(i+j*ren.maxWidth,0xFFFF0000);
+                }
             }
-            gc.fillPolygon(x, y, index);
-             */
+
         }
+    }
+    public static double findMin(double[] array,int size){
+        double min = Integer.MAX_VALUE;
+        for(int i = 0; i < size; i++){
+            if (array[i] < min) {
+                min = array[i];
+            }
+        }
+        return min;
+
+    }
+    public static double findMax(double[] array,int size){
+        double max = Integer.MIN_VALUE;
+        for(int i = 0; i < size; i++){
+            if (array[i] > max) {
+                max = array[i];
+            }
+        }
+        return max;
+
     }
 }

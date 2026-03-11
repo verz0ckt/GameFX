@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 public class Renderer extends Scene {
     private final WritableImage image;
-    private final PixelBuffer<IntBuffer> pixelBuffer;
-    private final IntBuffer buffer;
+    private volatile PixelBuffer<IntBuffer> activePixelBuffer;
+    private volatile PixelBuffer<IntBuffer> renderingPixelBuffer;
     private final ByteBuffer zbuffer;
     private double focalLength = -850;
 	private double near = 1;
@@ -43,12 +43,14 @@ public class Renderer extends Scene {
         midX = (double) maxWidth /2;
         midY = (double) maxHeight /2;
         int size = maxHeight*maxWidth;
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(size*4);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        buffer = byteBuffer.asIntBuffer();
-        pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,buffer, PixelFormat.getIntArgbPreInstance());
+        ByteBuffer byteBuffer1 = ByteBuffer.allocateDirect(size*4);
+        byteBuffer1.order(ByteOrder.nativeOrder());
+        activePixelBuffer = new PixelBuffer<>(maxWidth,maxHeight, byteBuffer1.asIntBuffer(), PixelFormat.getIntArgbPreInstance());
+        ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(size*4);
+        byteBuffer2.order(ByteOrder.nativeOrder());
+        renderingPixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,byteBuffer2.asIntBuffer(), PixelFormat.getIntArgbPreInstance());
         zbuffer = ByteBuffer.allocateDirect(size);
-        image = new WritableImage(pixelBuffer);
+        image = new WritableImage(activePixelBuffer);
         ImageView view = new ImageView(image);
         view.fitWidthProperty().bind(
                 root.widthProperty());
@@ -86,11 +88,14 @@ public class Renderer extends Scene {
         return focalLength;
     }
 
-    public void repaint() {
-        for (int i = 0; i < buffer.capacity(); i ++) {
-            buffer.put(i, 0xFFDDDDDD);
-        }
+    private void switchBuffer(){
+        PixelBuffer<IntBuffer> temp = renderingPixelBuffer;
+        renderingPixelBuffer = activePixelBuffer;
+        activePixelBuffer = temp;
+    }
 
+    public void repaint() {
+        IntBuffer buffer = activePixelBuffer.getBuffer();
         game.getCam().update();
         camRot.conjugateOf(game.getCam().getRenderingQuaternion());
         camRot.tryNormalize();
@@ -102,13 +107,23 @@ public class Renderer extends Scene {
         if (game.getClass() == Game.class) {
             sortObjects(game.objects);
         }
+
+        for (int i = 0; i < buffer.capacity(); i ++) {
+            buffer.put(i, 0xFFDDDDDD);
+        }
+        for(int i = 0; i < 200; i ++) {
+            buffer.put(i+i*maxWidth,0xFFFF0000);
+        }
+
         for (Object o : game.objects) {
             o.getModel().draw(buffer);
         }
         if (game.getCam().getPerspective() > 1) {
             game.getMainPlayer().getModel().draw(buffer);
         }
-        pixelBuffer.updateBuffer(_ -> null);
+
+        switchBuffer();
+        renderingPixelBuffer.updateBuffer(_->null);
     }
     @Deprecated
     public double distanceFromViewPortSqared(double[] point) {

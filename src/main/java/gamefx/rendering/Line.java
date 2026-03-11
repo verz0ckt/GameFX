@@ -65,7 +65,10 @@ public class Line extends Drawable
                     error -= dx;
                     y += signY;
                 }
-                if(x >= ren.maxWidth || x < 0 || y >= buffer.capacity() || y < 0) {
+                if(x >= ren.maxWidth || x<0 || y >= buffer.capacity() || y < 0){
+                    if(x >= ren.maxWidth || (y >= buffer.capacity() && signY >= 0) || (y < 0 && signY <= 0) ){
+                        break;
+                    }
                     continue;
                 }
                 int pos = x+y;
@@ -98,14 +101,16 @@ public class Line extends Drawable
                     error -= dy;
                     x += signX;
                 }
-                if(x >= ren.maxWidth || x < 0 || y >= buffer.capacity() || y < 0) continue;
+                if(x >= ren.maxWidth || x < 0 || y >= buffer.capacity() || y < 0){
+                    if(y >= buffer.capacity() || (x >= ren.maxWidth && signX >= 0) || (x < 0 && signX <= 0) ){
+                        break;
+                    }
+                    continue;
+                }
                 int pos = x+y;
                 buffer.put(pos,color);
             }
         }
-
-        //gc.setStroke(paint);
-        //gc.strokeLine(x1,y1,x2,y2);
     }
 
 }

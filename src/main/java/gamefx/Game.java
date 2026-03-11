@@ -61,7 +61,7 @@ public class Game
     }
     private void stressInit2(ArrayList<Object> objects, int max){
         for(int i = 0;i<max;i++) {
-            objects.add(new Block(new double[]{200, 0,0}, 10));
+            objects.add(new Block(new double[]{200, 0,0}, 30));
         }
     }
     private void stressInit(ArrayList<Object> objects){
