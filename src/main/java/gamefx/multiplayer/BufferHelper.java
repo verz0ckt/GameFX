@@ -2,7 +2,7 @@ package gamefx.multiplayer;
 
 import gamefx.objects.Block;
 import gamefx.objects.Object;
-import gamefx.objects.PlaneObj;
+import gamefx.objects.Plane;
 import gamefx.objects.Player;
 import gamefx.util.Quaternion;
 
@@ -94,8 +94,8 @@ public class BufferHelper {
                 double width = getDoublefromBuffer(bytes,offset);
                 return new Block(new double[]{x,y,z},new Quaternion(w,i,j,k),size,height,length,width);
             }
-            case PlaneObj.ID -> {
-                return new PlaneObj(new double[]{x,y,z},new Quaternion(w,i,j,k),size);
+            case Plane.ID -> {
+                return new Plane(new double[]{x,y,z},new Quaternion(w,i,j,k),size);
             }
             default -> throw new IllegalStateException("Unexpected value: " + id);
         }

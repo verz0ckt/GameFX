@@ -8,7 +8,6 @@ import gamefx.rendering.Drawable;
 import gamefx.rendering.Point;
 import gamefx.rendering.Renderer;
 
-import java.nio.IntBuffer;
 import java.util.Arrays;
 
 public abstract class Object {
@@ -26,6 +25,7 @@ public abstract class Object {
     protected Matrix rotMatrix;
     protected double[] offset;
     //dont use
+    @Deprecated
     public double distance;
 
     //Multiplayer
@@ -137,7 +137,7 @@ public abstract class Object {
         pos[1] += offset[1];
         pos[2] += offset[2];
     }
-
+    //TODO:apply size at the end
     public double getSize() {
         return size;
     }
@@ -152,10 +152,10 @@ public abstract class Object {
         protected Point[] points;
         protected Drawable[] drawable;
         protected Renderer renderer;
+        protected double maxOffset = -1;
 
         public ObjectModel() {
             this.renderer = Main.getGame().getRenderer();
-            
         }
         public void offset(double x,double y,double z){
             for(Point p : points){
@@ -164,6 +164,7 @@ public abstract class Object {
                 pos[1] += y;
                 pos[2] += z;
             }
+            calcMaxOffset();
         }
         public void scale(double x,double y,double z){
             for(Point p : points){
@@ -172,11 +173,24 @@ public abstract class Object {
                 pos[1] *= y;
                 pos[2] *= z;
             }
+            calcMaxOffset();
         }
         public Object getObject(){
             return Object.this;
         }
-        public void draw(IntBuffer buffer){
+        public void calcMaxOffset() {
+            double max = 0;
+            if(points == null) return;
+            for(Point p : points){
+                double[] pos = p.getPosition();
+                double dist = pos[0]*pos[0]+pos[1]*pos[1]+pos[2]*pos[2];
+                if(max < dist){
+                    max = dist;
+                }
+            }
+            maxOffset = Math.sqrt(max);
+        }
+        public void draw(int[] buffer){
              if(points != null || children != null) {
                  renderingQuaterion.replaceWith(rot);
                  if (parent == null) {
@@ -197,15 +211,23 @@ public abstract class Object {
                      parent.renderingQuaterion.apply(offset);
                      parent.applyOffsetToPoint(offset);
                  }
+                 assert maxOffset != -1;
+                 if((offset[0]+maxOffset < renderer.getNear()) || offset[0]-maxOffset > renderer.getFar()) {
+                     //improve clipping
+                     if (children != null) {
+                         for (Object c : children) {
+                             c.getModel().draw(buffer);
+                         }
+                     }
+                     return;
+                 };
                  if(points!= null){
                     for (Point p : points) {
                          p.project(renderer);
                     }
                  }
                  if(drawable != null){
-                    for (Drawable d : drawable) {
-                       d.draw(buffer);
-                    }
+                     drawDrawables(buffer);
                  }
                  if (children != null) {
                      for (Object c : children) {
@@ -214,6 +236,7 @@ public abstract class Object {
                  }
              }
         }
+        protected abstract void drawDrawables(int[] buffer);
     }
 
     @Override

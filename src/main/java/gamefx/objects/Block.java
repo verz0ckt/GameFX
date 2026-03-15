@@ -3,7 +3,7 @@ package gamefx.objects;
 import gamefx.util.Quaternion;
 import gamefx.rendering.Drawable;
 import gamefx.rendering.Line;
-import gamefx.rendering.Plane;
+import gamefx.rendering.Triangle;
 import gamefx.rendering.Point;
 
 public class Block extends Object{
@@ -77,18 +77,18 @@ public class Block extends Object{
                         drawable = new Drawable[(planes ? 12 : 0) + (lines ? 12 : 0)];  //24
 
                         if (planes) {
-                                drawable[0] = new Plane(points[0], points[1], points[2]);
-                                drawable[1] = new Plane(points[0], points[3], points[2]);
-                                drawable[2] = new Plane(points[4], points[5], points[6]);
-                                drawable[3] = new Plane(points[4], points[7], points[6]);
-                                drawable[4] = new Plane(points[0], points[4], points[5]);
-                                drawable[5] = new Plane(points[0], points[1], points[5]);
-                                drawable[6] = new Plane(points[1], points[5], points[6]);
-                                drawable[7] = new Plane(points[1], points[2], points[6]);
-                                drawable[8] = new Plane(points[2], points[6], points[7]);
-                                drawable[9] = new Plane(points[2], points[3], points[7]);
-                                drawable[10] = new Plane(0xfff08080, points[3], points[7], points[4]);
-                                drawable[11] = new Plane(0xfff08080, points[3], points[0], points[4]);
+                                drawable[0] = new Triangle(points[0], points[1], points[2]);
+                                drawable[1] = new Triangle(points[0], points[3], points[2]);
+                                drawable[2] = new Triangle(points[4], points[5], points[6]);
+                                drawable[3] = new Triangle(points[4], points[7], points[6]);
+                                drawable[4] = new Triangle(points[0], points[4], points[5]);
+                                drawable[5] = new Triangle(points[0], points[1], points[5]);
+                                drawable[6] = new Triangle(points[1], points[5], points[6]);
+                                drawable[7] = new Triangle(points[1], points[2], points[6]);
+                                drawable[8] = new Triangle(points[2], points[6], points[7]);
+                                drawable[9] = new Triangle(points[2], points[3], points[7]);
+                                drawable[10] = new Triangle(0xfff08080, points[3], points[7], points[4]);
+                                drawable[11] = new Triangle(0xfff08080, points[3], points[0], points[4]);
                         }
                         if (lines) {
                                 int offset = lines ? 12 : 0;
@@ -105,8 +105,13 @@ public class Block extends Object{
                                         drawable[offset + 8 + i] = new Line(points[i], points[4 + i]);
                                 }
                         }
+                        calcMaxOffset();
                 }
-
+                protected void drawDrawables(int[] buffer) {
+                        for(Drawable d: drawable){
+                                d.draw(buffer);
+                        }
+                }
         }
 
         @Override

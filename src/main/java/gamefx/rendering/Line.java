@@ -1,8 +1,6 @@
 package gamefx.rendering;
 
 
-import java.nio.IntBuffer;
-
 public class Line extends Drawable
 {
     public Line(Point... corners)
@@ -16,7 +14,7 @@ public class Line extends Drawable
     }
 
     @Override
-    public void draw(IntBuffer buffer) {
+    public void draw(int[] buffer) {
         double x1 = corners[0].getProjection()[0];
         double y1 = corners[0].getProjection()[1];
         double x2 = corners[1].getProjection()[0];
@@ -54,9 +52,9 @@ public class Line extends Drawable
             dy <<= 1;
             int error = dy-dx;
             dx = dx<<1;
-            if(x < ren.maxWidth && x >= 0 && y < buffer.capacity() && y >= 0) {
+            if(x < ren.maxWidth && x >= 0 && y < ren.SIZE && y >= 0) {
                 int pos = x+y;
-                buffer.put(pos,color);
+                buffer[pos] = color;
             }
             while(x <= xEnd){
                 x++;
@@ -65,14 +63,14 @@ public class Line extends Drawable
                     error -= dx;
                     y += signY;
                 }
-                if(x >= ren.maxWidth || x<0 || y >= buffer.capacity() || y < 0){
-                    if(x >= ren.maxWidth || (y >= buffer.capacity() && signY >= 0) || (y < 0 && signY <= 0) ){
+                if(x >= ren.maxWidth || x<0 || y >= ren.SIZE || y < 0){
+                    if(x >= ren.maxWidth || (y >= ren.SIZE && signY >= 0) || (y < 0 && signY <= 0) ){
                         break;
                     }
                     continue;
                 }
                 int pos = x+y;
-                buffer.put(pos,color);
+                buffer[pos] = color;
             }
         }else {
             int x = (int) x1;
@@ -90,9 +88,9 @@ public class Line extends Drawable
             dx <<= 1;
             int error = dx-dy;
             dy <<= 1;
-            if(x < ren.maxWidth && x >= 0 && y < buffer.capacity() && y >= 0) {
+            if(x < ren.maxWidth && x >= 0 && y < ren.SIZE && y >= 0) {
                 int pos = x+y;
-                buffer.put(pos,color);
+                buffer[pos] = color;
             }
             while(y <= yEnd){
                 y+= ren.maxWidth;
@@ -101,14 +99,14 @@ public class Line extends Drawable
                     error -= dy;
                     x += signX;
                 }
-                if(x >= ren.maxWidth || x < 0 || y >= buffer.capacity() || y < 0){
-                    if(y >= buffer.capacity() || (x >= ren.maxWidth && signX >= 0) || (x < 0 && signX <= 0) ){
+                if(x >= ren.maxWidth || x < 0 || y >= ren.SIZE || y < 0){
+                    if(y >= ren.SIZE || (x >= ren.maxWidth && signX >= 0) || (x < 0 && signX <= 0) ){
                         break;
                     }
                     continue;
                 }
                 int pos = x+y;
-                buffer.put(pos,color);
+                buffer[pos] = color;
             }
         }
     }

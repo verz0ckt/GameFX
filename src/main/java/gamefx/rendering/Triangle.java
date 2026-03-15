@@ -1,25 +1,21 @@
 package gamefx.rendering;
 
 
-
-import java.nio.IntBuffer;
-import java.util.Arrays;
-
-public class Plane extends Drawable {
-    public Plane(Point... corners) {
+public class Triangle extends Drawable {
+    public Triangle(Point... corners) {
         super("plane",0xff87cefa,corners );
     }
 
-    public Plane(int color, Point... corners) {
+    public Triangle(int color, Point... corners) {
         super("plane",color,corners);
     }
 
-    private double[] x = new double[4];
-    private double[] y = new double[4];
+    private final double[] x = new double[3];
+    private final double[] y = new double[3];
     @Override
-    public void draw(IntBuffer buffer) {
+    public void draw(int[] buffer) {
         int index = 0;
-
+        /*
         for (int i = 0;i<corners.length;i++){
             if(corners[i].visibility() != 0){
                 {
@@ -69,22 +65,39 @@ public class Plane extends Drawable {
             x[index] = p[0];
             y[index] = p[1];
             index++;
+        }*/
+        //while testing
+        for(Point c : corners){
+            if (c.visibility() != 0){
+                return;
+            }
         }
+        double[] p = corners[0].getProjection();
+        x[index] = p[0];
+        y[index++] = p[1];
+        p = corners[1].getProjection();
+        x[index] = p[0];
+        y[index++] = p[1];
+        p = corners[2].getProjection();
+        x[index] = p[0];
+        y[index++] = p[1];
         if(index >1) {
-            int topX = (int) findMin(x,index);
-            int topY = (int) findMin(y,index);
-            int bottomX = (int) findMax(x,index);
-            int bottomY = (int) findMax(y,index);
-            for(int i = topX; i <= bottomX; i++){
-                for(int j = topY; j <= bottomY; j++){
-                    if(i >= ren.maxWidth || i<0 || j >= ren.maxHeight || j < 0){
-                        continue;
-                    }
-                    buffer.put(i+j*ren.maxWidth,color);
+            int topX = Math.max((int) findMin(x,index),0);
+            int topY = Math.max((int) findMin(y,index),0);
+            int bottomX = Math.min((int) findMax(x,index), ren.maxWidth-1);
+            int bottomY = Math.min((int) findMax(y,index), ren.maxHeight-1);
+            for(int j = topY; j <= bottomY; j++){
+                for(int i = topX; i <= bottomX; i++){
+                    buffer[i+j* ren.maxWidth] = color;
                 }
             }
-
         }
+    }
+    public void drawTopTri(){
+
+    }
+    public void drawBottomTri(){
+
     }
     public static double findMin(double[] array,int size){
         double min = Integer.MAX_VALUE;

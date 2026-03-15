@@ -4,29 +4,31 @@ import gamefx.Game;
 import gamefx.util.Matrix;
 import gamefx.objects.Object;
 import gamefx.util.Quaternion;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 
 public class Renderer extends Scene {
     private final WritableImage image;
-    private volatile PixelBuffer<IntBuffer> activePixelBuffer;
-    private volatile PixelBuffer<IntBuffer> renderingPixelBuffer;
-    private final ByteBuffer zbuffer;
+    private final PixelBuffer<IntBuffer> pixelBuffer;
+    private final IntBuffer buffer;
+    private final byte[] zbuffer;
+    public final int SIZE;
     private double focalLength = -850;
-	private double near = 1;
-    private double far = 500;
+	private final double near = 1;
+    private final double far = 500;
     private final Game game;
+    private Text timeField;
 
-    private double midX;
-    private double midY;
+    private final double midX;
+    private final double midY;
     public final int maxHeight;
     public final int maxWidth;
 
@@ -38,25 +40,25 @@ public class Renderer extends Scene {
         super(new StackPane());
         this.game = game;
         StackPane root = (StackPane) getRoot();
+        timeField = new Text();
         maxHeight = (int) Screen.getPrimary().getBounds().getHeight();
         maxWidth = (int) Screen.getPrimary().getBounds().getWidth();
         midX = (double) maxWidth /2;
         midY = (double) maxHeight /2;
-        int size = maxHeight*maxWidth;
-        ByteBuffer byteBuffer1 = ByteBuffer.allocateDirect(size*4);
-        byteBuffer1.order(ByteOrder.nativeOrder());
-        activePixelBuffer = new PixelBuffer<>(maxWidth,maxHeight, byteBuffer1.asIntBuffer(), PixelFormat.getIntArgbPreInstance());
-        ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(size*4);
-        byteBuffer2.order(ByteOrder.nativeOrder());
-        renderingPixelBuffer = new PixelBuffer<>(maxWidth,maxHeight,byteBuffer2.asIntBuffer(), PixelFormat.getIntArgbPreInstance());
-        zbuffer = ByteBuffer.allocateDirect(size);
-        image = new WritableImage(activePixelBuffer);
+        SIZE = maxHeight*maxWidth;
+        buffer = IntBuffer.allocate(SIZE);
+        pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight, buffer, PixelFormat.getIntArgbPreInstance());
+        zbuffer = new byte[SIZE];
+        image = new WritableImage(pixelBuffer);
         ImageView view = new ImageView(image);
         view.fitWidthProperty().bind(
                 root.widthProperty());
         view.fitHeightProperty().bind(
                 root.heightProperty());
         root.getChildren().add(view);
+
+        root.getChildren().add(timeField);
+        StackPane.setAlignment(timeField, Pos.TOP_LEFT);
         view.setSmooth(false);
     }
     //projection
@@ -88,14 +90,10 @@ public class Renderer extends Scene {
         return focalLength;
     }
 
-    private void switchBuffer(){
-        PixelBuffer<IntBuffer> temp = renderingPixelBuffer;
-        renderingPixelBuffer = activePixelBuffer;
-        activePixelBuffer = temp;
-    }
 
     public void repaint() {
-        IntBuffer buffer = activePixelBuffer.getBuffer();
+        int[] buffer = this.buffer.array();
+        timeField.setText(String.valueOf(game.getDeltatime()*1_000_000.0));
         game.getCam().update();
         camRot.conjugateOf(game.getCam().getRenderingQuaternion());
         camRot.tryNormalize();
@@ -108,11 +106,8 @@ public class Renderer extends Scene {
             sortObjects(game.objects);
         }
 
-        for (int i = 0; i < buffer.capacity(); i ++) {
-            buffer.put(i, 0xFFDDDDDD);
-        }
-        for(int i = 0; i < 200; i ++) {
-            buffer.put(i+i*maxWidth,0xFFFF0000);
+        for (int i = 0; i < SIZE; i ++) {
+            buffer[i] = 0xFFDDDDDD;
         }
 
         for (Object o : game.objects) {
@@ -122,8 +117,7 @@ public class Renderer extends Scene {
             game.getMainPlayer().getModel().draw(buffer);
         }
 
-        switchBuffer();
-        renderingPixelBuffer.updateBuffer(_->null);
+        pixelBuffer.updateBuffer(_->null);
     }
     @Deprecated
     public double distanceFromViewPortSqared(double[] point) {

@@ -53,7 +53,7 @@ public class Game
         mainPlayer = new Player(name,new double[3]);
         cam = new Cam(mainPlayer.head,new double[]{0,8,0});
         //testobjects
-        //objects.add(new PlaneObj(new double[]{0,0,0},500));
+        objects.add(new Plane(new double[]{0,0,0},100));
         objects.add(new Block(new double[]{200, 32, 0}, 64));
         objects.add(new Block(new double[]{100, 16, 0}, 32));
         //stressInit2(objects,1000);
@@ -112,7 +112,7 @@ public class Game
     }
     protected void movePlayer(Player player,int pressed,int mX,int mY){
         double x = (((pressed >>> GameKey.Inputs.FORWARD.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.BACKWARDS.ordinal()) & 1)) * deltatime * 100;
-        double y = 0;
+        double y = (((pressed >>> GameKey.Inputs.JUMP.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.SNEAK.ordinal()) & 1)) * deltatime * 100;
         double z = (((pressed >>> GameKey.Inputs.LEFT.ordinal()) & 1) - ((pressed >>> GameKey.Inputs.RIGHT.ordinal()) & 1)) * deltatime * 100;
         if ((x != 0) || (y != 0) || (z != 0)) {
             player.move(x, y, z);
@@ -145,7 +145,7 @@ public class Game
             pos[0] += playerPos[0];
             pos[1] += playerPos[1];
             pos[2] += playerPos[2];
-            Block b = new Block(pos,q,32);
+            TriangleObj b = new TriangleObj(pos,q,32);
             objects.add(b);
             gameKey.unset(GameKey.Inputs.SPAWN);
         }

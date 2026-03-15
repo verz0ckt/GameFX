@@ -2,9 +2,6 @@ package gamefx.rendering;
 
 
 import gamefx.Main;
-import javafx.scene.paint.Paint;
-
-import java.nio.IntBuffer;
 
 public abstract class Drawable
 {
@@ -29,5 +26,5 @@ public abstract class Drawable
        this.color = color;
        ren = Main.getGame().getRenderer();
     }
-    public abstract void draw(IntBuffer buffer);
+    public abstract void draw(int[] buffer);
 }

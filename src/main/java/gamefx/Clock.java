@@ -22,6 +22,11 @@ public class Clock extends AnimationTimer {
 
     @Override
     public void handle(long l) {
+        try {
+            Thread.sleep(4);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         game.update();
         game.renderer.repaint();
         if(game.stop){

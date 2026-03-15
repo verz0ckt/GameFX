@@ -69,6 +69,12 @@ public class Player extends Object
           children[4] = arml;
           children[5] = armr;
           setChildren(children);
+          calcMaxOffset();
+        }
+
+        @Override
+        protected void drawDrawables(int[] buffer) {
+            return;
         }
     }
 

@@ -19,6 +19,8 @@ public class GameKey implements EventHandler<InputEvent> {
         BACKWARDS,
         LEFT,
         RIGHT,
+        JUMP,
+        SNEAK,
         SPAWN,
         FULLSCREEN,
         PERSPECTIVE,
@@ -46,6 +48,8 @@ public class GameKey implements EventHandler<InputEvent> {
         KEYBINDS.put(getCode(KeyCode.S),Inputs.BACKWARDS);
         KEYBINDS.put(getCode(KeyCode.A),Inputs.LEFT);
         KEYBINDS.put(getCode(KeyCode.D),Inputs.RIGHT);
+        KEYBINDS.put(getCode(KeyCode.SPACE),Inputs.JUMP);
+        KEYBINDS.put(getCode(KeyCode.SHIFT),Inputs.SNEAK);
         KEYBINDS.put(getCode(KeyCode.F11),Inputs.FULLSCREEN);
         KEYBINDS.put(getCode(KeyCode.F3),Inputs.PERSPECTIVE);
         KEYBINDS.put(getCode(KeyCode.ESCAPE),Inputs.PAUSE);
