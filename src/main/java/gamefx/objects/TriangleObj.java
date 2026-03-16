@@ -36,8 +36,12 @@ public class TriangleObj extends Object{
 
 
         protected void drawDrawables(int[] buffer) {
+            tempPoint[0] = offset[0];
+            tempPoint[1] = offset[1];
+            tempPoint[2] = offset[2];
+            renderingQuaterion.getConjugate().apply(tempPoint);
 
-            if(true){
+            if(tempPoint[0] >= 0){
                 System.out.println(renderingQuaterion);
                 drawable[0].draw(buffer);
                 drawable[1].draw(buffer);

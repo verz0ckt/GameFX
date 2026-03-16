@@ -77,18 +77,21 @@ public class Block extends Object{
                         drawable = new Drawable[(planes ? 12 : 0) + (lines ? 12 : 0)];  //24
 
                         if (planes) {
+
                                 drawable[0] = new Triangle(points[0], points[1], points[2]);
                                 drawable[1] = new Triangle(points[0], points[3], points[2]);
                                 drawable[2] = new Triangle(points[4], points[5], points[6]);
                                 drawable[3] = new Triangle(points[4], points[7], points[6]);
-                                drawable[4] = new Triangle(points[0], points[4], points[5]);
-                                drawable[5] = new Triangle(points[0], points[1], points[5]);
-                                drawable[6] = new Triangle(points[1], points[5], points[6]);
-                                drawable[7] = new Triangle(points[1], points[2], points[6]);
-                                drawable[8] = new Triangle(points[2], points[6], points[7]);
-                                drawable[9] = new Triangle(points[2], points[3], points[7]);
-                                drawable[10] = new Triangle(0xfff08080, points[3], points[7], points[4]);
-                                drawable[11] = new Triangle(0xfff08080, points[3], points[0], points[4]);
+
+                                drawable[4] = new Triangle(points[1], points[5], points[6]);
+                                drawable[5] = new Triangle(points[1], points[2], points[6]);
+                                drawable[6] = new Triangle(0xfff08080, points[3], points[7], points[4]);
+                                drawable[7] = new Triangle(0xfff08080, points[3], points[0], points[4]);
+
+                                drawable[8] = new Triangle(points[0], points[4], points[5]);
+                                drawable[9] = new Triangle(points[0], points[1], points[5]);
+                                drawable[10] = new Triangle(points[2], points[6], points[7]);
+                                drawable[11] = new Triangle(points[2], points[3], points[7]);
                         }
                         if (lines) {
                                 int offset = lines ? 12 : 0;
@@ -108,7 +111,12 @@ public class Block extends Object{
                         calcMaxOffset();
                 }
                 protected void drawDrawables(int[] buffer) {
+                        tempPoint[0] = offset[0];
+                        tempPoint[1] = offset[1];
+                        tempPoint[2] = offset[2];
+                        renderingQuaterion.getConjugate().apply(tempPoint);
                         for(Drawable d: drawable){
+                                if(d == null) continue;
                                 d.draw(buffer);
                         }
                 }

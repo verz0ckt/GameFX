@@ -236,6 +236,8 @@ public abstract class Object {
                  }
              }
         }
+
+        protected static double[] tempPoint = new double[3];
         protected abstract void drawDrawables(int[] buffer);
     }
 
