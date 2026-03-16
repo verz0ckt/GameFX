@@ -72,27 +72,22 @@ public class Block extends Object{
                                 new Point(getObject(), halfSize * length, halfSize * height, halfSize * width),
                                 new Point(getObject(), -halfSize * length, halfSize * height, halfSize * width)
                         };
-                        boolean planes = true;
                         boolean lines = true;
-                        drawable = new Drawable[(planes ? 12 : 0) + (lines ? 12 : 0)];  //24
+                        drawable = new Drawable[12 + (lines ? 12 : 0)];  //24
+                                drawable[0] = new Triangle(0xfff08080, points[3], points[7], points[4]);
+                                drawable[1] = new Triangle(0xfff08080, points[3], points[0], points[4]);
+                                drawable[2] = new Triangle(points[1], points[5], points[6]);
+                                drawable[3] = new Triangle(points[1], points[2], points[6]);
 
-                        if (planes) {
+                                drawable[4] = new Triangle(points[0], points[4], points[5]);
+                                drawable[5] = new Triangle(points[0], points[1], points[5]);
+                                drawable[6] = new Triangle(points[2], points[6], points[7]);
+                                drawable[7] = new Triangle(points[2], points[3], points[7]);
 
-                                drawable[0] = new Triangle(points[0], points[1], points[2]);
-                                drawable[1] = new Triangle(points[0], points[3], points[2]);
-                                drawable[2] = new Triangle(points[4], points[5], points[6]);
-                                drawable[3] = new Triangle(points[4], points[7], points[6]);
-
-                                drawable[4] = new Triangle(points[1], points[5], points[6]);
-                                drawable[5] = new Triangle(points[1], points[2], points[6]);
-                                drawable[6] = new Triangle(0xfff08080, points[3], points[7], points[4]);
-                                drawable[7] = new Triangle(0xfff08080, points[3], points[0], points[4]);
-
-                                drawable[8] = new Triangle(points[0], points[4], points[5]);
-                                drawable[9] = new Triangle(points[0], points[1], points[5]);
-                                drawable[10] = new Triangle(points[2], points[6], points[7]);
-                                drawable[11] = new Triangle(points[2], points[3], points[7]);
-                        }
+                                drawable[8] = new Triangle(points[0], points[1], points[2]);
+                                drawable[9] = new Triangle(points[0], points[3], points[2]);
+                                drawable[10] = new Triangle(points[4], points[5], points[6]);
+                                drawable[11] = new Triangle(points[4], points[7], points[6]);
                         if (lines) {
                                 int offset = lines ? 12 : 0;
                                 drawable[offset + 0] = new Line(points[0], points[1]);
@@ -115,9 +110,30 @@ public class Block extends Object{
                         tempPoint[1] = offset[1];
                         tempPoint[2] = offset[2];
                         renderingQuaterion.getConjugate().apply(tempPoint);
-                        for(Drawable d: drawable){
-                                if(d == null) continue;
-                                d.draw(buffer);
+                        if(tempPoint[0] >= 0){
+                                drawable[0].draw(buffer);
+                                drawable[1].draw(buffer);
+                        }else{
+                                drawable[2].draw(buffer);
+                                drawable[3].draw(buffer);
+                        }
+                        if(tempPoint[1] > 0){
+                                drawable[4].draw(buffer);
+                                drawable[5].draw(buffer);
+                        }else{
+                                drawable[6].draw(buffer);
+                                drawable[7].draw(buffer);
+                        }
+                        if(tempPoint[2] > 0){
+                                drawable[8].draw(buffer);
+                                drawable[9].draw(buffer);
+                        }else{
+                                drawable[10].draw(buffer);
+                                drawable[11].draw(buffer);
+                        }
+                        for(int i = 12; i < drawable.length;i++){
+                                if(drawable[i] == null)continue;
+                                drawable[i].draw(buffer);
                         }
                 }
         }

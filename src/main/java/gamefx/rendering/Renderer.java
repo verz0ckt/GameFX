@@ -22,6 +22,8 @@ public class Renderer extends Scene {
     private final byte[] zbuffer;
     public final int SIZE;
     private double focalLength = -850;
+    public final double mY;
+    public final double mZ;
 	private final double near = 1;
     private final double far = 500;
     private final Game game;
@@ -45,6 +47,8 @@ public class Renderer extends Scene {
         maxWidth = (int) Screen.getPrimary().getBounds().getWidth();
         midX = (double) maxWidth /2;
         midY = (double) maxHeight /2;
+        mY = maxHeight/(focalLength*2);
+        mZ = maxWidth/(focalLength*2);
         SIZE = maxHeight*maxWidth;
         buffer = IntBuffer.allocate(SIZE);
         pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight, buffer, PixelFormat.getIntArgbPreInstance());

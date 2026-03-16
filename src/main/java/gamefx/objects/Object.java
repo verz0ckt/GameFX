@@ -212,7 +212,7 @@ public abstract class Object {
                      parent.applyOffsetToPoint(offset);
                  }
                  assert maxOffset != -1;
-                 if((offset[0]+maxOffset < renderer.getNear()) || offset[0]-maxOffset > renderer.getFar()) {
+                 if(checkBounds()) {
                      //improve clipping
                      if (children != null) {
                          for (Object c : children) {
@@ -235,6 +235,14 @@ public abstract class Object {
                      }
                  }
              }
+        }
+        public boolean checkBounds(){
+            boolean x = offset[0]+maxOffset < renderer.getNear() || offset[0]-maxOffset > renderer.getFar();
+            double vy = renderer.mY*(offset[0]+size);
+            boolean y = vy > offset[1]+maxOffset || -vy < offset[1]-maxOffset;
+            double vz = renderer.mZ*(offset[0]+size);
+            boolean z = vz > offset[2]+maxOffset || -vz < offset[2]-maxOffset;
+            return z || y || x;
         }
 
         protected static double[] tempPoint = new double[3];

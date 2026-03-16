@@ -49,9 +49,7 @@ public class Plane extends Object{
             calcMaxOffset();
         }
         protected void drawDrawables(int[] buffer) {
-            boolean isFacingAway = false;
             for(Drawable d : drawable){
-                if(d instanceof Triangle && isFacingAway)continue;
                 d.draw(buffer);
             }
         }
