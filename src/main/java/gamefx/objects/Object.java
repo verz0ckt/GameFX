@@ -190,7 +190,7 @@ public abstract class Object {
             }
             maxOffset = Math.sqrt(max);
         }
-        public void draw(int[] buffer){
+        public void draw(int[] buffer, short[] zbuffer){
              if(points != null || children != null) {
                  renderingQuaterion.replaceWith(rot);
                  if (parent == null) {
@@ -216,7 +216,7 @@ public abstract class Object {
                      //improve clipping
                      if (children != null) {
                          for (Object c : children) {
-                             c.getModel().draw(buffer);
+                             c.getModel().draw(buffer, zbuffer);
                          }
                      }
                      return;
@@ -227,11 +227,11 @@ public abstract class Object {
                     }
                  }
                  if(drawable != null){
-                     drawDrawables(buffer);
+                     drawDrawables(buffer,zbuffer);
                  }
                  if (children != null) {
                      for (Object c : children) {
-                         c.getModel().draw(buffer);
+                         c.getModel().draw(buffer, zbuffer);
                      }
                  }
              }
@@ -246,7 +246,7 @@ public abstract class Object {
         }
 
         protected static double[] tempPoint = new double[3];
-        protected abstract void drawDrawables(int[] buffer);
+        protected abstract void drawDrawables(int[] buffer, short[] zbuffer);
     }
 
     @Override

@@ -8,9 +8,9 @@ import java.util.Arrays;
 
 public class Point {
 
-    private Object object;
+    private final Object object;
 
-    private double[] projection = new double[2];
+    private final double[] projection = new double[3];
 
     public double[] getPosition() {
         return position;
@@ -26,7 +26,7 @@ public class Point {
         return campos;
     }
 
-    private double[] campos = new double[3];
+    private final double[] campos = new double[3];
 
     Renderer ren;
 
@@ -70,6 +70,9 @@ public class Point {
     }
     public double getProjY() {
         return projection[1];
+    }
+    public double getProjZ() {
+        return projection[2];
     }
 
 

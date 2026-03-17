@@ -73,7 +73,7 @@ public class Player extends Object
         }
 
         @Override
-        protected void drawDrawables(int[] buffer) {
+        protected void drawDrawables(int[] buffer, short[] zbuffer) {
             return;
         }
     }

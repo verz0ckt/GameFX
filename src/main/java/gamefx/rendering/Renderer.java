@@ -19,7 +19,7 @@ public class Renderer extends Scene {
     private final WritableImage image;
     private final PixelBuffer<IntBuffer> pixelBuffer;
     private final IntBuffer buffer;
-    private final byte[] zbuffer;
+    private final short[] zbuffer;
     public final int SIZE;
     private double focalLength = -850;
     public final double mY;
@@ -52,7 +52,7 @@ public class Renderer extends Scene {
         SIZE = maxHeight*maxWidth;
         buffer = IntBuffer.allocate(SIZE);
         pixelBuffer = new PixelBuffer<>(maxWidth,maxHeight, buffer, PixelFormat.getIntArgbPreInstance());
-        zbuffer = new byte[SIZE];
+        zbuffer = new short[SIZE];
         image = new WritableImage(pixelBuffer);
         ImageView view = new ImageView(image);
         view.fitWidthProperty().bind(
@@ -109,16 +109,16 @@ public class Renderer extends Scene {
         if (game.getClass() == Game.class) {
             sortObjects(game.objects);
         }
-
         for (int i = 0; i < SIZE; i ++) {
             buffer[i] = 0xFFDDDDDD;
+            zbuffer[i] = Short.MIN_VALUE;
         }
 
         for (Object o : game.objects) {
-            o.getModel().draw(buffer);
+            o.getModel().draw(buffer,zbuffer);
         }
         if (game.getCam().getPerspective() > 1) {
-            game.getMainPlayer().getModel().draw(buffer);
+            game.getMainPlayer().getModel().draw(buffer, zbuffer);
         }
 
         pixelBuffer.updateBuffer(_->null);
@@ -147,6 +147,7 @@ public class Renderer extends Scene {
     public void getProjection(double[] proj,double[] point,double fov){
         proj[0] = fov/point[0]*point[2];//x
         proj[1] = fov/point[0]*point[1];//y
+        proj[2] = -point[0]+(Short.MIN_VALUE+far);
     }
     public void adjustToScreen(double[] v){
         v[0] += midX;

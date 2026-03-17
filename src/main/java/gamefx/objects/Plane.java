@@ -48,9 +48,9 @@ public class Plane extends Object{
             drawable[1] = new Triangle(0xffff69b4, points[(imax + 1) * 4 + 1], points[(imax + 1) * 4 + 2], points[(imax + 1) * 4 + 3]);
             calcMaxOffset();
         }
-        protected void drawDrawables(int[] buffer) {
+        protected void drawDrawables(int[] buffer, short[] zbuffer) {
             for(Drawable d : drawable){
-                d.draw(buffer);
+                d.draw(buffer, zbuffer);
             }
         }
     }

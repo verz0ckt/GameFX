@@ -105,35 +105,35 @@ public class Block extends Object{
                         }
                         calcMaxOffset();
                 }
-                protected void drawDrawables(int[] buffer) {
+                protected void drawDrawables(int[] buffer, short[] zbuffer) {
                         tempPoint[0] = offset[0];
                         tempPoint[1] = offset[1];
                         tempPoint[2] = offset[2];
                         renderingQuaterion.getConjugate().apply(tempPoint);
                         if(tempPoint[0] >= 0){
-                                drawable[0].draw(buffer);
-                                drawable[1].draw(buffer);
+                                drawable[0].draw(buffer,zbuffer);
+                                drawable[1].draw(buffer,zbuffer);
                         }else{
-                                drawable[2].draw(buffer);
-                                drawable[3].draw(buffer);
+                                drawable[2].draw(buffer,zbuffer);
+                                drawable[3].draw(buffer,zbuffer);
                         }
                         if(tempPoint[1] > 0){
-                                drawable[4].draw(buffer);
-                                drawable[5].draw(buffer);
+                                drawable[4].draw(buffer,zbuffer);
+                                drawable[5].draw(buffer,zbuffer);
                         }else{
-                                drawable[6].draw(buffer);
-                                drawable[7].draw(buffer);
+                                drawable[6].draw(buffer,zbuffer);
+                                drawable[7].draw(buffer,zbuffer);
                         }
                         if(tempPoint[2] > 0){
-                                drawable[8].draw(buffer);
-                                drawable[9].draw(buffer);
+                                drawable[8].draw(buffer,zbuffer);
+                                drawable[9].draw(buffer,zbuffer);
                         }else{
-                                drawable[10].draw(buffer);
-                                drawable[11].draw(buffer);
+                                drawable[10].draw(buffer,zbuffer);
+                                drawable[11].draw(buffer,zbuffer);
                         }
                         for(int i = 12; i < drawable.length;i++){
                                 if(drawable[i] == null)continue;
-                                drawable[i].draw(buffer);
+                                drawable[i].draw(buffer,zbuffer);
                         }
                 }
         }

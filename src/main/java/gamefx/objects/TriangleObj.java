@@ -35,18 +35,17 @@ public class TriangleObj extends Object{
         }
 
 
-        protected void drawDrawables(int[] buffer) {
+        protected void drawDrawables(int[] buffer, short[] zbuffer) {
             tempPoint[0] = offset[0];
             tempPoint[1] = offset[1];
             tempPoint[2] = offset[2];
             renderingQuaterion.getConjugate().apply(tempPoint);
 
             if(tempPoint[0] >= 0){
-                System.out.println(renderingQuaterion);
-                drawable[0].draw(buffer);
-                drawable[1].draw(buffer);
-                drawable[2].draw(buffer);
-                drawable[3].draw(buffer);
+                drawable[0].draw(buffer,zbuffer);
+                drawable[1].draw(buffer, zbuffer);
+                drawable[2].draw(buffer, zbuffer);
+                drawable[3].draw(buffer, zbuffer);
             }
         }
     }

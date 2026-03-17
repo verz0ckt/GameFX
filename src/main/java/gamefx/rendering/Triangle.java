@@ -12,8 +12,9 @@ public class Triangle extends Drawable {
 
     private final double[] x = new double[3];
     private final double[] y = new double[3];
+
     @Override
-    public void draw(int[] buffer) {
+    public void draw(int[] buffer, short[] zbuffer) {
         int index = 0;
         /*
         for (int i = 0;i<corners.length;i++){
@@ -67,28 +68,36 @@ public class Triangle extends Drawable {
             index++;
         }*/
         //while testing
-        for(Point c : corners){
-            if (c.visibility() != 0){
+        for (Point c : corners) {
+            if (c.visibility() != 0) {
                 return;
             }
         }
         double[] p = corners[0].getProjection();
         x[index] = p[0];
         y[index++] = p[1];
+        int zs = (int) p[2];
         p = corners[1].getProjection();
         x[index] = p[0];
         y[index++] = p[1];
+        zs += (int) p[2];
         p = corners[2].getProjection();
         x[index] = p[0];
         y[index++] = p[1];
-        if(index >1) {
-            int topX = Math.max((int) findMin(x,index),0);
-            int topY = Math.max((int) findMin(y,index),0);
-            int bottomX = Math.min((int) findMax(x,index), ren.maxWidth-1);
-            int bottomY = Math.min((int) findMax(y,index), ren.maxHeight-1);
-            for(int j = topY; j <= bottomY; j++){
-                for(int i = topX; i <= bottomX; i++){
-                    buffer[i+j* ren.maxWidth] = color;
+        zs += (int) p[2];
+        if (index > 1) {
+            int z = zs / 3;
+            int topX = Math.max((int) findMin(x, index), 0);
+            int topY = Math.max((int) findMin(y, index), 0);
+            int bottomX = Math.min((int) findMax(x, index), ren.maxWidth - 1);
+            int bottomY = Math.min((int) findMax(y, index), ren.maxHeight - 1);
+            for (int j = topY; j <= bottomY; j++) {
+                for (int i = topX; i <= bottomX; i++) {
+                    int pos = i + j * ren.maxWidth;
+                    if (z > zbuffer[pos]) {
+                        buffer[pos] = color;
+                        zbuffer[pos] = (short) z;
+                    }
                 }
             }
         }

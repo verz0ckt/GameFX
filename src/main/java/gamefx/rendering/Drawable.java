@@ -19,12 +19,12 @@ public abstract class Drawable
     protected int color;
 
     //only use while rendering
-    protected static double[] alt = new double[2];
+    protected static double[] alt = new double[3];
     public Drawable(String name, int color, Point[] corners){
        this.corners = corners;
        this.name = name;
        this.color = color;
        ren = Main.getGame().getRenderer();
     }
-    public abstract void draw(int[] buffer);
+    public abstract void draw(int[] buffer, short[] zbuffer);
 }
