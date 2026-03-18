@@ -20,7 +20,7 @@ public class Line extends Drawable
         double z1 = corners[0].getProjZ();
         double x2 = corners[1].getProjX();
         double y2 = corners[1].getProjY();
-        double z2 = corners[0].getProjZ();
+        double z2 = corners[1].getProjZ();
 
         if(corners[0].visibility() != 0){
             if(corners[1].visibility() == corners[0].visibility()){

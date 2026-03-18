@@ -15,114 +15,131 @@ public class Triangle extends Drawable {
 
     @Override
     public void draw(int[] buffer, short[] zbuffer) {
-        int index = 0;
-        /*
-        for (int i = 0;i<corners.length;i++){
-            if(corners[i].visibility() != 0){
-                {
-                    int imin = i - 1;
-                    if (imin < 0) {
-                        imin = corners.length - 1;
-                    }
-                    if (corners[imin].visibility() != corners[i].visibility()) {
-                        corners[i].getCut(corners[imin],alt);
-                        if(index >= x.length){
-                            x = new double[index+1];
-                            y = new double[index+1];
-                            //TODO: make better
-                            return;
-                        }
-                        x[index] = alt[0];
-                        y[index] = alt[1];
-                        index++;
-                    }
-                }{
-                    int imax = i + 1;
-                    if (imax > corners.length - 1) {
-                        imax = 0;
-                    }
-                    if (corners[imax].visibility() != corners[i].visibility()) {
-                        corners[i].getCut(corners[imax],alt);
-                        if(index >= x.length){
-                            x = new double[index+1];
-                            y = new double[index+1];
-                            //TODO: make better
-                            return;
-                        }
-                        x[index] = alt[0];
-                        y[index] = alt[1];
-                        index++;
-                    }
-                }
-                continue;
-            }
-            double[] p = corners[i].getProjection();
-            if(index >= x.length){
-                x = new double[index+1];
-                y = new double[index+1];
-                //TODO: make better
-                return;
-            }
-            x[index] = p[0];
-            y[index] = p[1];
-            index++;
-        }*/
+        int xt = (int) corners[0].getProjX();
+        int yt = (int) corners[0].getProjY();
+        int zt = (int) corners[0].getProjZ();
+        int xm = (int) corners[1].getProjX();
+        int ym = (int) corners[1].getProjY();
+        int zm = (int) corners[1].getProjZ();
+        int xb = (int) corners[2].getProjX();
+        int yb = (int) corners[2].getProjY();
+        int zb = (int) corners[2].getProjZ();
+
+        if(xb < xm){
+            int tmp = xb;
+            xb = xm;
+            xm = tmp;
+
+            tmp = yb;
+            yb = ym;
+            ym = tmp;
+
+            tmp = zb;
+            zb = zm;
+            zm = tmp;
+        }
+        if(xm < xt){
+            int tmp = xm;
+            xm = xt;
+            xt = tmp;
+
+            tmp = ym;
+            ym = yt;
+            yt = tmp;
+
+            tmp = zm;
+            zm = zt;
+            zt = tmp;
+        }
+        if(xb < xm){
+            int tmp = xb;
+            xb = xm;
+            xm = tmp;
+
+            tmp = yb;
+            yb = ym;
+            ym = tmp;
+
+            tmp = zb;
+            zb = zm;
+            zm = tmp;
+        }
+
         //while testing
         for (Point c : corners) {
             if (c.visibility() != 0) {
                 return;
             }
         }
+        if(xt == xm){
+            drawBottomTri();
+            return;
+        }else if(xb == xm){
+            drawTopTri();
+            return;
+        }
+
+        drawTopTri();
+        drawBottomTri();
+
+
+        /*
         double[] p = corners[0].getProjection();
-        x[index] = p[0];
-        y[index++] = p[1];
+        x[0] = p[0];
+        y[0] = p[1];
         int zs = (int) p[2];
         p = corners[1].getProjection();
-        x[index] = p[0];
-        y[index++] = p[1];
+        x[1] = p[0];
+        y[1] = p[1];
         zs += (int) p[2];
         p = corners[2].getProjection();
-        x[index] = p[0];
-        y[index++] = p[1];
+        x[2] = p[0];
+        y[2] = p[1];
         zs += (int) p[2];
-        if (index > 1) {
-            int z = zs / 3;
-            int topX = Math.max((int) findMin(x, index), 0);
-            int topY = Math.max((int) findMin(y, index), 0);
-            int bottomX = Math.min((int) findMax(x, index), ren.maxWidth - 1);
-            int bottomY = Math.min((int) findMax(y, index), ren.maxHeight - 1);
-            for (int j = topY; j <= bottomY; j++) {
-                for (int i = topX; i <= bottomX; i++) {
-                    int pos = i + j * ren.maxWidth;
-                    if (z > zbuffer[pos]) {
-                        buffer[pos] = color;
-                        zbuffer[pos] = (short) z;
-                    }
+        int z = zs / 3;
+        int topX = Math.max((int) findMin(x), 0);
+        int topY = Math.max((int) findMin(y), 0);
+        int bottomX = Math.min((int) findMax(x), ren.maxWidth - 1);
+        int bottomY = Math.min((int) findMax(y), ren.maxHeight - 1);
+        for (int j = topY; j <= bottomY; j++) {
+            for (int i = topX; i <= bottomX; i++) {
+                int pos = i + j * ren.maxWidth;
+                if (z > zbuffer[pos]) {
+                    buffer[pos] = color;
+                    zbuffer[pos] = (short) z;
+                }
+            }
+        }*/
+    }
+    public void drawTopTri(int[] buffer,int x1,int y1,int c1, int m1,int c2,int m2,int x2,int y2){
+        for(int y = y1; y < y2; y++){
+            for(int x = x1; x < x2; x++){
+                int l1 = -x*m1-c1+y;
+                int l2 = x*m2+c2-y;
+                if(l1 >= 0 && l2 >= 0){
+                    buffer[x+y* ren.maxWidth] = color;
                 }
             }
         }
     }
-    public void drawTopTri(){
-
-    }
     public void drawBottomTri(){
 
     }
-    public static double findMin(double[] array,int size){
+    public static double findMin(double[] array){
         double min = Integer.MAX_VALUE;
-        for(int i = 0; i < size; i++){
-            if (array[i] < min) {
-                min = array[i];
+        for (double v : array) {
+            if (v < min) {
+                min = v;
             }
         }
         return min;
 
     }
-    public static double findMax(double[] array,int size){
+    public static double findMax(double[] array){
         double max = Integer.MIN_VALUE;
-        for(int i = 0; i < size; i++){
-            if (array[i] > max) {
-                max = array[i];
+        for (double v : array) {
+            if (v > max) {
+                max = v;
             }
         }
         return max;
