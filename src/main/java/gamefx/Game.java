@@ -19,6 +19,7 @@ public class Game
     protected Clock clock;
     protected volatile boolean stop = false;
     protected Player mainPlayer;
+    protected TriangleObj last;
     protected Cam cam;
     public Player getMainPlayer() {
         return mainPlayer;
@@ -61,7 +62,7 @@ public class Game
     }
     private void stressInit2(ArrayList<Object> objects, int max){
         for(int i = 0;i<max;i++) {
-            objects.add(new Block(new double[]{200, 0,0}, 30));
+            objects.add(new TriangleObj(new double[]{200, 0,0},Quaternion.zeroRot(), 30));
         }
     }
     private void stressInit(ArrayList<Object> objects){
@@ -147,6 +148,7 @@ public class Game
             pos[2] += playerPos[2];
             TriangleObj b = new TriangleObj(pos,q,32);
             objects.add(b);
+            last = b;
             gameKey.unset(GameKey.Inputs.SPAWN);
         }
         int blockUP = ((pressed >>> GameKey.Inputs.B1.ordinal())&1)-((pressed >>>GameKey.Inputs.B2.ordinal())&1);

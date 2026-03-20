@@ -15,53 +15,53 @@ public class Triangle extends Drawable {
 
     @Override
     public void draw(int[] buffer, short[] zbuffer) {
-        int xt = (int) corners[0].getProjX();
-        int yt = (int) corners[0].getProjY();
-        int zt = (int) corners[0].getProjZ();
+        int xl = (int) corners[0].getProjX();
+        int yl = (int) corners[0].getProjY();
+        int zl = (int) corners[0].getProjZ();
         int xm = (int) corners[1].getProjX();
         int ym = (int) corners[1].getProjY();
         int zm = (int) corners[1].getProjZ();
-        int xb = (int) corners[2].getProjX();
-        int yb = (int) corners[2].getProjY();
-        int zb = (int) corners[2].getProjZ();
+        int xr = (int) corners[2].getProjX();
+        int yr = (int) corners[2].getProjY();
+        int zr = (int) corners[2].getProjZ();
 
-        if(xb < xm){
-            int tmp = xb;
-            xb = xm;
+        if(xr < xm){
+            int tmp = xr;
+            xr = xm;
             xm = tmp;
 
-            tmp = yb;
-            yb = ym;
+            tmp = yr;
+            yr = ym;
             ym = tmp;
 
-            tmp = zb;
-            zb = zm;
+            tmp = zr;
+            zr = zm;
             zm = tmp;
         }
-        if(xm < xt){
+        if(xm < xl){
             int tmp = xm;
-            xm = xt;
-            xt = tmp;
+            xm = xl;
+            xl = tmp;
 
             tmp = ym;
-            ym = yt;
-            yt = tmp;
+            ym = yl;
+            yl = tmp;
 
             tmp = zm;
-            zm = zt;
-            zt = tmp;
+            zm = zl;
+            zl = tmp;
         }
-        if(xb < xm){
-            int tmp = xb;
-            xb = xm;
+        if(xr < xm){
+            int tmp = xr;
+            xr = xm;
             xm = tmp;
 
-            tmp = yb;
-            yb = ym;
+            tmp = yr;
+            yr = ym;
             ym = tmp;
 
-            tmp = zb;
-            zb = zm;
+            tmp = zr;
+            zr = zm;
             zm = tmp;
         }
 
@@ -71,78 +71,123 @@ public class Triangle extends Drawable {
                 return;
             }
         }
-        if(xt == xm){
-            drawBottomTri();
+        boolean flip =  yl+yr < ym*2;
+        if(xl == xm){//draw Right
+            double mlr = (double) (yr - yl) /(xr-xl);
+            double mrm = (double) (ym - yr) /(xm-xr);
+            int yMidMax;
+            int yMidMin;
+            if(ym > yl){
+                yMidMax = ym;
+                yMidMin = yl;
+            }else {
+                yMidMax = yl;
+                yMidMin = ym;
+            }
+            int ymax = Math.max(yMidMax,yr);
+            int ymin = Math.min(yMidMin,yr);
+            if(flip) {
+                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, mrm, mlr);
+            }else {
+                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, mlr, mrm);
+            }
             return;
-        }else if(xb == xm){
-            drawTopTri();
+        }else if(xr == xm){//draw left
+            double mlr = (double) (yr - yl) /(xr-xl);
+            double mlm = (double) (ym - yl) /(xm-xl);
+            int yMidMax;
+            int yMidMin;
+            if(ym > yr){
+                yMidMax = ym;
+                yMidMin = yr;
+            }else {
+                yMidMax = yr;
+                yMidMin = ym;
+            }
+            int ymax = Math.max(yMidMax,yl);
+            int ymin = Math.min(yMidMin,yl);
+            if(flip) {
+                drawTri(buffer, zbuffer, xl, yl, xl, xm, ymin, ymax,mlm,mlr);
+            }else {
+                drawTri(buffer, zbuffer, xl, yl, xl, xm, ymin, ymax, mlr,mlm);
+            }
             return;
         }
+        double mlr = (double) (yr - yl) /(xr-xl);
+        int ysplit = (int) (mlr*(xm-xl)+yl);
+        double mlm = (double) (ym - yl) /(xm-xl);
+        double mrm = (double) (ym - yr) /(xm-xr);
 
-        drawTopTri();
-        drawBottomTri();
-
-
-        /*
-        double[] p = corners[0].getProjection();
-        x[0] = p[0];
-        y[0] = p[1];
-        int zs = (int) p[2];
-        p = corners[1].getProjection();
-        x[1] = p[0];
-        y[1] = p[1];
-        zs += (int) p[2];
-        p = corners[2].getProjection();
-        x[2] = p[0];
-        y[2] = p[1];
-        zs += (int) p[2];
-        int z = zs / 3;
-        int topX = Math.max((int) findMin(x), 0);
-        int topY = Math.max((int) findMin(y), 0);
-        int bottomX = Math.min((int) findMax(x), ren.maxWidth - 1);
-        int bottomY = Math.min((int) findMax(y), ren.maxHeight - 1);
-        for (int j = topY; j <= bottomY; j++) {
-            for (int i = topX; i <= bottomX; i++) {
-                int pos = i + j * ren.maxWidth;
-                if (z > zbuffer[pos]) {
-                    buffer[pos] = color;
-                    zbuffer[pos] = (short) z;
+        int yMidMax;
+        int yMidMin;
+        if(ym > ysplit){
+            yMidMax = ym;
+            yMidMin = ysplit;
+        }else {
+            yMidMax = ysplit;
+            yMidMin = ym;
+        }
+        int ymax = Math.max(yMidMax,yr);
+        int ymin = Math.min(yMidMin,yr);
+        if(flip){
+            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,mrm,mlr);
+        }else{
+            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,mlr,mrm);
+        }
+        ymax = Math.max(yMidMax,yl);
+        ymin = Math.min(yMidMin,yl);
+        if(flip){
+            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,mlm,mlr);
+        }else{
+            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,mlr,mlm);
+        }
+    }
+    public void drawTri(int[] buffer,short[] zbuffer,
+                        final int xstart,final int ystart,
+                        final int xmin,final int xmax,final int ymin, int ymax,
+                        final double m1,final double m2){
+        int dx = xmin-xstart;
+        int dy = ymin-ystart;
+        double e1 = m1*dx-dy;
+        double e2 = -m2*dx+dy;
+        ymax *= ren.maxWidth;
+        for(int y = ymin* ren.maxWidth;y<=ymax;y += ren.maxWidth){
+            double te1 = e1;
+            double te2 = e2;
+            boolean hasdrawn = false;
+            for(int x = xmin; x<= xmax;x++){
+                te1 += m1;
+                te2 -= m2;
+                if(te1<0 || te2 <0){
+                    if(hasdrawn){
+                        break;
+                    }
+                    continue;
                 }
-            }
-        }*/
-    }
-    public void drawTopTri(int[] buffer,int x1,int y1,int c1, int m1,int c2,int m2,int x2,int y2){
-        for(int y = y1; y < y2; y++){
-            for(int x = x1; x < x2; x++){
-                int l1 = -x*m1-c1+y;
-                int l2 = x*m2+c2-y;
-                if(l1 >= 0 && l2 >= 0){
-                    buffer[x+y* ren.maxWidth] = color;
+                if(x+y <0 || x+y >= buffer.length){
+                    continue;
                 }
+                hasdrawn = true;
+                buffer[x+y] = color;
             }
+            e1--;
+            e2++;
         }
-    }
-    public void drawBottomTri(){
-
-    }
-    public static double findMin(double[] array){
-        double min = Integer.MAX_VALUE;
-        for (double v : array) {
-            if (v < min) {
-                min = v;
-            }
-        }
-        return min;
-
-    }
-    public static double findMax(double[] array){
-        double max = Integer.MIN_VALUE;
-        for (double v : array) {
-            if (v > max) {
-                max = v;
-            }
-        }
-        return max;
-
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

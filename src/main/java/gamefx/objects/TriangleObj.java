@@ -40,7 +40,6 @@ public class TriangleObj extends Object{
             tempPoint[1] = offset[1];
             tempPoint[2] = offset[2];
             renderingQuaterion.getConjugate().apply(tempPoint);
-
             if(tempPoint[0] >= 0){
                 drawable[0].draw(buffer,zbuffer);
                 drawable[1].draw(buffer, zbuffer);
