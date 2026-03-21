@@ -10,8 +10,8 @@ public class Triangle extends Drawable {
         super("plane",color,corners);
     }
 
-    private final double[] x = new double[3];
-    private final double[] y = new double[3];
+    @Deprecated
+    private int z;
 
     @Override
     public void draw(int[] buffer, short[] zbuffer) {
@@ -65,12 +65,20 @@ public class Triangle extends Drawable {
             zm = tmp;
         }
 
+        //TODO: bounding box cases
+
         //while testing
         for (Point c : corners) {
             if (c.visibility() != 0) {
                 return;
             }
         }
+        int maxZ = Math.max(Math.max(zl,zm),zr);
+        z = (zl+zm+zr-maxZ)/2;//TODO:remove
+
+
+        //TODO: clap min to 0 and max to maxWidth/maxHeight
+
         boolean flip =  yl+yr < ym*2;
         if(xl == xm){//draw Right
             double mlr = (double) (yr - yl) /(xr-xl);
@@ -164,11 +172,15 @@ public class Triangle extends Drawable {
                     }
                     continue;
                 }
-                if(x+y <0 || x+y >= buffer.length){
+                int pos = x+y;
+                if(pos <0 || pos >= buffer.length){
                     continue;
                 }
                 hasdrawn = true;
-                buffer[x+y] = color;
+                if(z > zbuffer[pos]){
+                    buffer[pos] = color;
+                    zbuffer[pos] = (short) z;
+                }
             }
             e1--;
             e2++;

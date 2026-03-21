@@ -107,6 +107,7 @@ public class Renderer extends Scene {
         camPos[1] = camOffset[1];
         camPos[2] = camOffset[2];
         if (game.getClass() == Game.class) {
+            //TODO:remove if zbuffering is finished
             sortObjects(game.objects);
         }
         for (int i = 0; i < SIZE; i ++) {
