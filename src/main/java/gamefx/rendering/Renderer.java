@@ -12,7 +12,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 
 public class Renderer extends Scene {
@@ -24,10 +23,10 @@ public class Renderer extends Scene {
     private double focalLength = -850;
     public final double mY;
     public final double mZ;
-	private final double near = 1;
-    private final double far = 500;
+	private static final double near = 1;
+    private static final double far = 500;
     private final Game game;
-    private Text timeField;
+    private final Text timeField;
 
     private final double midX;
     private final double midY;
@@ -106,10 +105,6 @@ public class Renderer extends Scene {
         camPos[0] = camOffset[0];
         camPos[1] = camOffset[1];
         camPos[2] = camOffset[2];
-        if (game.getClass() == Game.class) {
-            //TODO:remove if zbuffering is finished
-            sortObjects(game.objects);
-        }
         for (int i = 0; i < SIZE; i ++) {
             buffer[i] = 0xFFDDDDDD;
             zbuffer[i] = Short.MIN_VALUE;
@@ -124,31 +119,17 @@ public class Renderer extends Scene {
 
         pixelBuffer.updateBuffer(_->null);
     }
-    @Deprecated
-    public double distanceFromViewPortSqared(double[] point) {
-        double dx = point[0] - camPos[0];
-        double dy = point[1] - camPos[1];
-        double dz = point[2] - camPos[2];
-        return dx * dx + dy * dy + dz * dz;
-    }
 
-    @Deprecated
-    public void sortObjects(ArrayList<Object> objects){
-        //TODO: sort Planes instead
-        for(Object o: objects){
-            o.distance = distanceFromViewPortSqared(o.getPos());
-        }
-        objects.sort((o1,o2)-> (o1.distance<o2.distance)?1:-1);
-    }
     public void setRelToCam(double[] point){
         point[0] -= camPos[0];
         point[1] -= camPos[1];
         point[2] -= camPos[2];
     }
+    public static final double zOffset = Short.MIN_VALUE+far;
     public void getProjection(double[] proj,double[] point,double fov){
         proj[0] = fov/point[0]*point[2];//x
         proj[1] = fov/point[0]*point[1];//y
-        proj[2] = -point[0]+(Short.MIN_VALUE+far);
+        proj[2] = -point[0]+zOffset;
     }
     public void adjustToScreen(double[] v){
         v[0] += midX;

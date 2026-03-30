@@ -20,11 +20,10 @@ public class TriangleObj extends Object{
     public class TriangleModel extends ObjectModel{
         public TriangleModel() {
             super();
-            double width = Math.tan(Math.PI/6)*size;
             points = new Point[3];
             points[0] = new Point(TriangleObj.this,0,size,0);
-            points[1] = new Point(TriangleObj.this,0,0,-width);
-            points[2] = new Point(TriangleObj.this,0,0,width);
+            points[1] = new Point(TriangleObj.this,0,-size/2,-size*Math.sqrt(3)/2);
+            points[2] = new Point(TriangleObj.this,0,-size/2,size* Math.sqrt(3)/2);
             drawable = new Drawable[4];
             drawable[0] = new Triangle(0xFFFF00FF,points[0],points[1],points[2]);
             drawable[1] = new Line(0xFF000000,points[0],points[1]);

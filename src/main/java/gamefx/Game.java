@@ -62,7 +62,7 @@ public class Game
     }
     private void stressInit2(ArrayList<Object> objects, int max){
         for(int i = 0;i<max;i++) {
-            objects.add(new TriangleObj(new double[]{200, 0,0},Quaternion.zeroRot(), 30));
+            objects.add(new Block(new double[]{200, 0,0},Quaternion.zeroRot(), 30));
         }
     }
     private void stressInit(ArrayList<Object> objects){

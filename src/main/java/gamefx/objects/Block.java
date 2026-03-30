@@ -72,7 +72,7 @@ public class Block extends Object{
                                 new Point(getObject(), halfSize * length, halfSize * height, halfSize * width),
                                 new Point(getObject(), -halfSize * length, halfSize * height, halfSize * width)
                         };
-                        boolean lines = true;
+                        boolean lines = false;
                         drawable = new Drawable[12 + (lines ? 12 : 0)];  //24
                                 drawable[0] = new Triangle(0xfff08080, points[3], points[7], points[4]);
                                 drawable[1] = new Triangle(0xfff08080, points[3], points[0], points[4]);

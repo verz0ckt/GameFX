@@ -76,114 +76,92 @@ public class Triangle extends Drawable {
         int maxZ = Math.max(Math.max(zl,zm),zr);
         z = (zl+zm+zr-maxZ)/2;//TODO:remove
 
-
-        //TODO: clap min to 0 and max to maxWidth/maxHeight
-
-        boolean flip =  yl+yr < ym*2;
-        if(xl == xm){//draw Right
-            double mlr = (double) (yr - yl) /(xr-xl);
-            double mrm = (double) (ym - yr) /(xm-xr);
-            int yMidMax;
-            int yMidMin;
+        if(xl == xm){//draw only Right
+            final int dxrl = xl- xr;
+            final int dyrl = yl-yr;
+            final int dxrm = xm-xr;
+            final int dyrm = ym-yr;
             if(ym > yl){
-                yMidMax = ym;
-                yMidMin = yl;
+                int ymax = Math.max(ym,yr);
+                int ymin = Math.min(yl,yr);
+                drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,dxrl,dyrl,dxrm,dyrm);
+                return;
             }else {
-                yMidMax = yl;
-                yMidMin = ym;
+                int ymax = Math.max(yl, yr);
+                int ymin = Math.min(ym, yr);
+                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, dxrm, dyrm, dxrl, dyrl);
+                return;
             }
-            int ymax = Math.max(yMidMax,yr);
-            int ymin = Math.min(yMidMin,yr);
-            if(flip) {
-                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, mrm, mlr);
-            }else {
-                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, mlr, mrm);
-            }
-            return;
-        }else if(xr == xm){//draw left
-            double mlr = (double) (yr - yl) /(xr-xl);
-            double mlm = (double) (ym - yl) /(xm-xl);
-            int yMidMax;
-            int yMidMin;
+        }else if(xr == xm){//draw only left
+            final int dxlr = xr-xl;
+            final int dylr = yr-yl;
+            final int dxlm = xm-xl;
+            final int dylm = ym-yl;
             if(ym > yr){
-                yMidMax = ym;
-                yMidMin = yr;
+                int ymax = Math.max(ym,yl);
+                int ymin = Math.min(yr,yl);
+                drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,dxlm,dylm,dxlr,dylr);
+                return;
             }else {
-                yMidMax = yr;
-                yMidMin = ym;
+                int ymax = Math.max(yr, yl);
+                int ymin = Math.min(ym, yl);
+                drawTri(buffer, zbuffer, xl, yl, xl, xm, ymin, ymax, dxlr, dylr, dxlm, dylm);
+                return;
             }
-            int ymax = Math.max(yMidMax,yl);
-            int ymin = Math.min(yMidMin,yl);
-            if(flip) {
-                drawTri(buffer, zbuffer, xl, yl, xl, xm, ymin, ymax,mlm,mlr);
-            }else {
-                drawTri(buffer, zbuffer, xl, yl, xl, xm, ymin, ymax, mlr,mlm);
-            }
-            return;
-        }
-        double mlr = (double) (yr - yl) /(xr-xl);
-        int ysplit = (int) (mlr*(xm-xl)+yl);
-        double mlm = (double) (ym - yl) /(xm-xl);
-        double mrm = (double) (ym - yr) /(xm-xr);
-
-        int yMidMax;
-        int yMidMin;
+        }//draw both
+        final int dxlr = xr-xl;
+        final int dylr = yr-yl;
+        final int dxrm = xm-xr;
+        final int dyrm = ym-yr;
+        final int dxlm = xm-xl;
+        final int dylm = ym-yl;
+        int ysplit =  (yr - yl)*(xm-xl)/(xr-xl)+yl;
         if(ym > ysplit){
-            yMidMax = ym;
-            yMidMin = ysplit;
+            ysplit--;
+            int ymax = Math.max(ym,yr);
+            int ymin = Math.min(ysplit,yr);
+            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,-dxlr,-dylr,dxrm,dyrm);
+            ymax = Math.max(ym,yl);
+            ymin = Math.min(ysplit,yl);
+            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,dxlm,dylm,dxlr,dylr);
         }else {
-            yMidMax = ysplit;
-            yMidMin = ym;
-        }
-        int ymax = Math.max(yMidMax,yr);
-        int ymin = Math.min(yMidMin,yr);
-        if(flip){
-            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,mrm,mlr);
-        }else{
-            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,mlr,mrm);
-        }
-        ymax = Math.max(yMidMax,yl);
-        ymin = Math.min(yMidMin,yl);
-        if(flip){
-            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,mlm,mlr);
-        }else{
-            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,mlr,mlm);
+            ysplit++;
+            int ymax = Math.max(ysplit,yr);
+            int ymin = Math.min(ym,yr);
+            drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,dxrm,dyrm,-dxlr,-dylr);
+            ymax = Math.max(ysplit,yl);
+            ymin = Math.min(ym,yl);
+            drawTri(buffer, zbuffer, xl,yl,xl,xm,ymin,ymax,dxlr,dylr,dxlm,dylm);
         }
     }
     public void drawTri(int[] buffer,short[] zbuffer,
                         final int xstart,final int ystart,
-                        final int xmin,final int xmax,final int ymin, int ymax,
-                        final double m1,final double m2){
+                        int xmin,int xmax,int ymin,int ymax,
+                        final int dx1,final int dy1,final int dx2,final int dy2){
+        xmin = Math.max(xmin, 0);
+        xmax = Math.min(xmax, ren.maxWidth-1);
+        ymin = Math.max(ymin, 0);
+        ymax = Math.min(ymax, ren.maxHeight-1);
         int dx = xmin-xstart;
         int dy = ymin-ystart;
-        double e1 = m1*dx-dy;
-        double e2 = -m2*dx+dy;
+        int e1 = dy1*dx-dx1*dy;
+        int e2 = -dy2*dx+dx2*dy;
         ymax *= ren.maxWidth;
         for(int y = ymin* ren.maxWidth;y<=ymax;y += ren.maxWidth){
-            double te1 = e1;
-            double te2 = e2;
-            boolean hasdrawn = false;
-            for(int x = xmin; x<= xmax;x++){
-                te1 += m1;
-                te2 -= m2;
-                if(te1<0 || te2 <0){
-                    if(hasdrawn){
-                        break;
-                    }
+            int te1 = e1;
+            int te2 = e2;
+            final int posmax = xmax+y;
+            for(int pos = xmin+y; pos<= posmax;pos++){
+                te1 += dy1;
+                te2 -= dy2;
+                if(te1<0 || te2<0 || zbuffer[pos] >= z){
                     continue;
                 }
-                int pos = x+y;
-                if(pos <0 || pos >= buffer.length){
-                    continue;
-                }
-                hasdrawn = true;
-                if(z > zbuffer[pos]){
-                    buffer[pos] = color;
-                    zbuffer[pos] = (short) z;
-                }
+                buffer[pos] = color;
+                zbuffer[pos] = (short) z;
             }
-            e1--;
-            e2++;
+            e1 -= dx1;
+            e2 +=dx2;
         }
     }
 }
