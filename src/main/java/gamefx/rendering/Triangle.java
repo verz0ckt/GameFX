@@ -10,8 +10,9 @@ public class Triangle extends Drawable {
         super("plane",color,corners);
     }
 
-    @Deprecated
-    private int z;
+    private double zdx;
+    private double zdy;
+    private double zc;
 
     @Override
     public void draw(int[] buffer, short[] zbuffer) {
@@ -73,30 +74,40 @@ public class Triangle extends Drawable {
                 return;
             }
         }
-        int maxZ = Math.max(Math.max(zl,zm),zr);
-        z = (zl+zm+zr-maxZ)/2;//TODO:remove
-
+        final int dxlr = xr-xl;
+        final int dylr = yr-yl;
+        final int dxlm = xm-xl;
+        final int dylm = ym-yl;
+        {
+            int dzlr = zr-zl;
+            int dzlm = zm-zl;
+            /*
+                (dxlr)   (dxlm)   (dylr*dzlm-dzlr*dylm)
+                (dylr) X (dylm) = (dzlr*dxlm-dxlr*dzlm)
+                (dzlr)   (dzlm)   (dxlr*dylm-dylr*dxlm)
+             */
+            int nx = dylr*dzlm-dzlr*dylm;
+            int ny = dzlr*dxlm-dxlr*dzlm;
+            int nz = dxlr*dylm-dylr*dxlm;
+            zdx = (double) -nx /nz;
+            zdy = (double) -ny /nz;
+            zc = zl - zdx*xl-zdy*yl;
+        }
         if(xl == xm){//draw only Right
-            final int dxrl = xl- xr;
-            final int dyrl = yl-yr;
             final int dxrm = xm-xr;
             final int dyrm = ym-yr;
             if(ym > yl){
                 int ymax = Math.max(ym,yr);
                 int ymin = Math.min(yl,yr);
-                drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,dxrl,dyrl,dxrm,dyrm);
+                drawTri(buffer, zbuffer, xr,yr,xm,xr,ymin,ymax,-dxlr,-dylr,dxrm,dyrm);
                 return;
             }else {
                 int ymax = Math.max(yl, yr);
                 int ymin = Math.min(ym, yr);
-                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, dxrm, dyrm, dxrl, dyrl);
+                drawTri(buffer, zbuffer, xr, yr, xm, xr, ymin, ymax, dxrm, dyrm, -dxlr, -dylr);
                 return;
             }
         }else if(xr == xm){//draw only left
-            final int dxlr = xr-xl;
-            final int dylr = yr-yl;
-            final int dxlm = xm-xl;
-            final int dylm = ym-yl;
             if(ym > yr){
                 int ymax = Math.max(ym,yl);
                 int ymin = Math.min(yr,yl);
@@ -109,12 +120,8 @@ public class Triangle extends Drawable {
                 return;
             }
         }//draw both
-        final int dxlr = xr-xl;
-        final int dylr = yr-yl;
         final int dxrm = xm-xr;
         final int dyrm = ym-yr;
-        final int dxlm = xm-xl;
-        final int dylm = ym-yl;
         int ysplit =  (yr - yl)*(xm-xl)/(xr-xl)+yl;
         if(ym > ysplit){
             ysplit--;
@@ -142,26 +149,31 @@ public class Triangle extends Drawable {
         xmax = Math.min(xmax, ren.maxWidth-1);
         ymin = Math.max(ymin, 0);
         ymax = Math.min(ymax, ren.maxHeight-1);
-        int dx = xmin-xstart;
+        int dx = xmin-xstart-1; // gets increased directly at the start of inner loop so -1 to compensate
         int dy = ymin-ystart;
         int e1 = dy1*dx-dx1*dy;
         int e2 = -dy2*dx+dx2*dy;
+
+        double z = (xmin-1)* zdx+ymin* zdy + zc;
         ymax *= ren.maxWidth;
         for(int y = ymin* ren.maxWidth;y<=ymax;y += ren.maxWidth){
             int te1 = e1;
             int te2 = e2;
+            double tz = z;
             final int posmax = xmax+y;
             for(int pos = xmin+y; pos<= posmax;pos++){
                 te1 += dy1;
                 te2 -= dy2;
-                if(te1<0 || te2<0 || zbuffer[pos] >= z){
+                tz += zdx;
+                if(te1<0 || te2<0 || zbuffer[pos] >= tz){
                     continue;
                 }
                 buffer[pos] = color;
-                zbuffer[pos] = (short) z;
+                zbuffer[pos] = (short) tz;
             }
             e1 -= dx1;
             e2 +=dx2;
+            z += zdy;
         }
     }
 }
